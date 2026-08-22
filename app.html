@@ -1,0 +1,2699 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NeuroSync — seu app de rotina adaptativa</title>
+<meta name="description" content="Rotina que se adapta à sua energia real. Check-in diário, tarefas adaptativas, foco e plano Premium.">
+<meta name="theme-color" content="#08239B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ================================================================
+   NEUROSYNC APP — tokens herdados do pitch deck
+   ================================================================ */
+:root{
+  --ink-950:#04113C; --ink-900:#061B78; --ink-800:#08239B;
+  --ink-700:#0E31B8; --ink-600:#1740D6;
+  --blue-500:#1B7BFF; --blue-600:#1462D8; --blue-300:#7FBBFF;
+  --lime-400:#B6F65A; --lime-600:#8FD230;
+  --white:#fff; --warn:#FFC24A; --danger:#FF7A6B;
+  --font-display:"Archivo Black","Arial Black",Impact,sans-serif;
+  --font-body:"Archivo","Segoe UI",system-ui,-apple-system,sans-serif;
+  --radius:14px; --radius-s:9px;
+  --pad:clamp(16px,4.4vw,28px);
+  --max:1080px;
+  --nav-h:72px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--ink-800);color:var(--white);
+  font-family:var(--font-body);font-size:16px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+svg{display:block}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--lime-400);outline-offset:3px;border-radius:4px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+[hidden]{display:none!important}
+
+/* tipografia ---------------------------------------------------- */
+.display{font-family:var(--font-display);text-transform:uppercase;line-height:.92;letter-spacing:-.015em;margin:0}
+.d-xl{font-size:clamp(30px,7.4vw,46px)}
+.d-l{font-size:clamp(24px,5.2vw,34px)}
+.d-m{font-size:clamp(18px,3.4vw,22px)}
+.eyebrow{font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--blue-300);margin:0 0 8px}
+.muted{color:rgba(255,255,255,.78)}
+.t-lime{color:var(--lime-400)} .t-blue{color:var(--blue-300)}
+
+/* barra segmentada — motivo do deck ------------------------------ */
+.rule{display:flex;align-items:center;gap:8px;margin:14px 0 0}
+.rule i{display:block;height:10px;background:var(--blue-500);border-radius:1px}
+.rule i:first-child{width:110px}
+.rule i+i{width:10px;background:#fff}
+.rule--lime i:first-child{background:var(--lime-400)}
+
+/* botões --------------------------------------------------------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-weight:700;letter-spacing:.02em;text-decoration:none;cursor:pointer;
+  padding:14px 22px;border-radius:var(--radius-s);border:2px solid transparent;
+  background:none;transition:transform .16s ease,background .16s ease,color .16s ease;
+  min-height:48px;
+}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn--lime{background:var(--lime-400);color:var(--ink-950)}
+.btn--lime:not(:disabled):hover{background:#fff;transform:translateY(-2px)}
+.btn--blue{background:var(--blue-600);color:#fff}
+.btn--blue:not(:disabled):hover{background:#fff;color:var(--ink-900);transform:translateY(-2px)}
+.btn--ghost{border-color:rgba(255,255,255,.45)}
+.btn--ghost:not(:disabled):hover{border-color:var(--lime-400);color:var(--lime-400)}
+.btn--sm{padding:9px 14px;min-height:40px;font-size:14px}
+.btn--block{width:100%}
+.btn--danger{border:2px solid rgba(255,122,107,.7);color:#FFB3A9}
+.btn--danger:hover{background:rgba(255,122,107,.14)}
+
+/* cartões -------------------------------------------------------- */
+.card{background:var(--ink-700);border-radius:var(--radius);padding:20px}
+.card--dark{background:var(--ink-950)}
+.card--deep{background:var(--ink-900)}
+.card h2,.card h3{margin:0 0 10px}
+.stack{display:grid;gap:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.between{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;
+  font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  background:rgba(255,255,255,.14);
+}
+.chip--lime{background:var(--lime-400);color:var(--ink-950)}
+.chip--blue{background:var(--blue-600)}
+.chip--soft{background:rgba(255,255,255,.12);color:rgba(255,255,255,.85)}
+
+/* formulários ---------------------------------------------------- */
+.field{display:grid;gap:7px;margin-bottom:16px}
+.field>label{font-weight:700;font-size:14px;letter-spacing:.03em}
+.field .hint{font-size:13px;color:rgba(255,255,255,.72)}
+.input,select,textarea{
+  width:100%;padding:14px 15px;border-radius:var(--radius-s);
+  background:rgba(255,255,255,.96);color:var(--ink-950);
+  border:2px solid transparent;font:inherit;font-size:16px;
+}
+.input::placeholder{color:#5b6478}
+.input:focus,select:focus,textarea:focus{outline:none;border-color:var(--lime-400)}
+.input[aria-invalid="true"]{border-color:var(--danger);background:#FFF1EF}
+.err{font-size:13px;color:#FFB3A9;font-weight:600;min-height:0}
+fieldset{border:0;padding:0;margin:0 0 18px}
+legend{font-weight:700;font-size:14px;letter-spacing:.03em;padding:0;margin-bottom:10px}
+
+/* opções em cartão (radio acessível) ------------------------------ */
+.opts{display:grid;gap:10px}
+.opts--2{grid-template-columns:1fr 1fr}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.opt span{
+  display:block;padding:15px 16px;border-radius:var(--radius-s);
+  background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.22);
+  font-weight:600;line-height:1.35;transition:border-color .15s,background .15s;
+}
+.opt span small{display:block;font-weight:400;font-size:13px;color:rgba(255,255,255,.78);margin-top:3px}
+.opt input:checked+span{border-color:var(--lime-400);background:rgba(182,246,90,.16)}
+.opt input:focus-visible+span{outline:3px solid var(--lime-400);outline-offset:2px}
+
+/* escala 1-5 ------------------------------------------------------ */
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.scale .opt span{text-align:center;padding:14px 4px;font-family:var(--font-display);font-size:20px}
+.scale .opt span small{font-family:var(--font-body);font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+
+/* ================================================================
+   LAYOUT DO APP
+   ================================================================ */
+.appbar{
+  position:sticky;top:0;z-index:40;background:rgba(6,27,120,.94);
+  backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.12);
+}
+.appbar__in{max-width:var(--max);margin:0 auto;padding:12px var(--pad);display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-size:17px;text-decoration:none;color:#fff}
+.brand svg{width:26px;height:26px}
+.brand em{font-style:normal;color:var(--blue-300)}
+.appbar__right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.avatar{
+  width:40px;height:40px;border-radius:50%;background:var(--blue-500);
+  display:grid;place-items:center;font-family:var(--font-display);font-size:15px;
+  border:none;cursor:pointer;
+}
+main{max-width:var(--max);margin:0 auto;padding:22px var(--pad) calc(var(--nav-h) + 34px)}
+.screen{animation:fade .28s ease}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.screen__head{margin-bottom:20px}
+
+/* navegação inferior --------------------------------------------- */
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:var(--ink-950);border-top:1px solid rgba(255,255,255,.14);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tabbar ul{display:flex;list-style:none;margin:0 auto;padding:0;max-width:var(--max)}
+.tabbar li{flex:1}
+.tabbar button{
+  position:relative;width:100%;height:var(--nav-h);background:none;border:0;cursor:pointer;
+  display:grid;place-items:center;gap:3px;color:rgba(255,255,255,.68);
+  font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+}
+.tabbar svg{width:22px;height:22px}
+@media(max-width:420px){
+  .tabbar button{font-size:9.5px;letter-spacing:.02em}
+  .tabbar svg{width:20px;height:20px}
+}
+.tabbar button[aria-current="page"]{color:var(--lime-400)}
+.tabbar button[aria-current="page"]::before{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:28px;height:4px;background:var(--lime-400);border-radius:0 0 3px 3px;
+}
+.tabbar li{position:relative}
+
+/* ================================================================
+   ONBOARDING
+   ================================================================ */
+.onb{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;background:var(--ink-800)}
+.onb__bar{max-width:560px;width:100%;margin:0 auto;padding:20px var(--pad) 0;display:flex;gap:6px}
+.onb__bar i{flex:1;height:8px;background:rgba(255,255,255,.2);border-radius:1px}
+.onb__bar i.on{background:var(--lime-400)}
+.onb__body{flex:1;max-width:560px;width:100%;margin:0 auto;padding:26px var(--pad) 30px}
+.onb__foot{
+  position:sticky;bottom:0;background:linear-gradient(180deg,rgba(8,35,155,0),var(--ink-800) 32%);
+  padding:18px var(--pad) calc(20px + env(safe-area-inset-bottom));
+  max-width:560px;width:100%;margin:0 auto;display:flex;gap:12px;
+}
+.onb__foot .btn{flex:1}
+.onb__step{animation:fade .3s ease}
+
+/* ================================================================
+   HOJE / DASHBOARD
+   ================================================================ */
+.energy{
+  display:grid;gap:18px;align-items:center;
+  background:linear-gradient(135deg,var(--ink-700),var(--ink-900));
+  border-radius:var(--radius);padding:22px;border-left:6px solid var(--lime-400);
+}
+@media(min-width:640px){.energy{grid-template-columns:auto 1fr}}
+.gauge{width:132px;height:132px;margin:0 auto}
+.gauge text{font-family:var(--font-display)}
+.energy__label{font-family:var(--font-display);font-size:clamp(20px,4.2vw,27px);text-transform:uppercase;line-height:1;margin:0 0 8px}
+.budget{display:flex;gap:5px;margin-top:12px;flex-wrap:wrap}
+.budget i{width:13px;height:13px;border-radius:2px;background:rgba(255,255,255,.22)}
+.budget i.on{background:var(--lime-400)}
+
+.blocks{display:grid;gap:14px}
+.block{background:var(--ink-700);border-radius:var(--radius);overflow:hidden}
+.block__head{display:flex;align-items:center;gap:10px;padding:14px 18px;background:rgba(0,0,0,.18)}
+.block__head h3{margin:0;font-family:var(--font-display);text-transform:uppercase;font-size:15px;letter-spacing:.04em}
+.block__head .chip{margin-left:auto}
+.tasks{list-style:none;margin:0;padding:6px 10px 12px}
+.task{display:flex;gap:12px;align-items:flex-start;padding:11px 8px;border-bottom:1px solid rgba(255,255,255,.09)}
+.task:last-child{border-bottom:0}
+.task__check{
+  width:28px;height:28px;flex:none;border-radius:8px;cursor:pointer;
+  border:2px solid rgba(255,255,255,.5);background:none;display:grid;place-items:center;padding:0;
+}
+.task__check svg{width:16px;height:16px;opacity:0;color:var(--ink-950)}
+.task--done .task__check{background:var(--lime-400);border-color:var(--lime-400)}
+.task--done .task__check svg{opacity:1}
+.task__time{
+  font-family:var(--font-display);font-size:14px;letter-spacing:.01em;
+  min-width:52px;padding-top:3px;color:var(--blue-300);display:grid;gap:1px;line-height:1.25;
+}
+.task__time i{font-style:normal;font-size:11.5px;color:rgba(255,255,255,.6);position:relative;padding-left:9px}
+.task__time i::before{content:"";position:absolute;left:2px;top:50%;width:4px;height:1.5px;background:rgba(255,255,255,.45)}
+.task--now{background:rgba(182,246,90,.1);border-radius:8px}
+.days{display:flex;gap:6px}
+.day{flex:1;position:relative}
+.day input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.day span{
+  display:grid;place-items:center;height:44px;border-radius:8px;font-weight:700;
+  background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.22);transition:border-color .15s,background .15s;
+}
+.day input:checked+span{background:rgba(182,246,90,.18);border-color:var(--lime-400);color:var(--lime-400)}
+.day input:focus-visible+span{outline:3px solid var(--lime-400);outline-offset:2px}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.daystrip{display:flex;gap:4px;margin-top:9px}
+.daystrip button{
+  width:27px;height:27px;padding:0;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;
+  background:rgba(255,255,255,.09);border:1.5px solid rgba(255,255,255,.22);color:rgba(255,255,255,.6);
+}
+.daystrip button[aria-pressed="true"]{background:rgba(182,246,90,.2);border-color:var(--lime-400);color:var(--lime-400)}
+.daystrip button:hover{border-color:var(--lime-400)}
+.task--off{opacity:.62}
+.weekbar{display:flex;gap:6px;padding:14px 18px 4px}
+.weekbar div{flex:1;text-align:center;font-size:11.5px;color:rgba(255,255,255,.7);letter-spacing:.04em}
+.weekbar b{display:block;font-family:var(--font-display);font-size:15px;color:#fff;margin-top:3px}
+.weekbar .on{color:var(--lime-400)}
+.weekbar .on b{color:var(--lime-400)}
+.substeps{
+  list-style:none;flex:1 0 100%;margin:12px 0 2px 40px;padding:0 0 0 13px;
+  display:grid;gap:9px;border-left:2px solid rgba(255,255,255,.18);
+}
+.substeps li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px}
+.substeps li.is-done>span{text-decoration:line-through;color:rgba(255,255,255,.55)}
+.task__check--sm{width:23px;height:23px;border-radius:6px;border-width:2px}
+.task__check--sm svg{width:13px;height:13px}
+.progress-mini{height:5px;border-radius:3px;background:rgba(255,255,255,.16);margin-top:9px;max-width:230px;overflow:hidden}
+.progress-mini i{display:block;height:100%;background:var(--lime-400);border-radius:3px}
+.steplist{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px}
+.steplist li{display:flex;gap:6px;align-items:center}
+.steplist input{flex:1;min-width:0}
+.steplist .stepbtn{
+  width:40px;height:46px;flex:none;border-radius:8px;cursor:pointer;font-size:15px;
+  background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.25);color:#fff;
+}
+.steplist .stepbtn:disabled{opacity:.3;cursor:default}
+.steplist .stepbtn:not(:disabled):hover{border-color:var(--lime-400);color:var(--lime-400)}
+.task__times{display:flex;align-items:center;gap:7px}
+.task__times span{color:rgba(255,255,255,.55);font-size:13px}
+.task__times input{width:96px;flex:none;padding:9px 8px;font-size:15px}
+@media(max-width:560px){
+  .task{flex-wrap:wrap}
+  .task__times{flex:1 0 100%;margin:10px 0 2px 40px}
+}
+.task__time--free{font-family:var(--font-body);font-size:11.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.6);padding-top:7px}
+.task--done .task__time{color:rgba(255,255,255,.45)}
+.task__timeedit{width:104px;flex:none;padding:9px 10px;font-size:15px;align-self:center}
+.task__body{flex:1;min-width:0}
+.task__title{font-weight:600;word-break:break-word}
+.task--done .task__title{text-decoration:line-through;color:rgba(255,255,255,.6)}
+.task__meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
+.tag{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.14)}
+.tag--ess{background:var(--lime-400);color:var(--ink-950)}
+.tag--imp{background:var(--blue-600)}
+.tag--once{background:rgba(127,187,255,.22);color:var(--blue-300)}
+.tag--steps{background:rgba(255,255,255,.16);color:#fff}
+.tag--next{background:var(--lime-400);color:var(--ink-950)}
+.tag--late{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+.tag--restaura{background:rgba(182,246,90,.22);color:var(--lime-400)}
+.tag--warn{background:rgba(255,194,74,.22);color:#FFD98A}
+.now{display:flex;align-items:center;gap:10px;padding:10px 8px 6px}
+.now span{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lime-400);white-space:nowrap}
+.now::after{content:"";flex:1;height:2px;background:var(--lime-400);opacity:.55;border-radius:2px}
+.next-up{display:flex;gap:16px;align-items:center;border-left:6px solid var(--lime-400)}
+.next-up__in{margin:0 0 0 auto;font-family:var(--font-display);font-size:15px;color:var(--lime-400);white-space:nowrap}
+.next-up--live{border-left-color:var(--blue-500)}
+.runbar{width:100%;height:8px;background:rgba(255,255,255,.18);border-radius:4px;margin-top:12px;overflow:hidden}
+.runbar i{display:block;height:100%;background:var(--lime-400);border-radius:4px}
+.task__act{background:none;border:0;cursor:pointer;padding:6px;color:rgba(255,255,255,.7);border-radius:6px}
+.task__act:hover{color:var(--lime-400)}
+.task__act svg{width:18px;height:18px}
+
+.later{border:2px dashed rgba(255,255,255,.3);border-radius:var(--radius);padding:18px;background:rgba(0,0,0,.14)}
+.later li{margin-bottom:6px}
+
+.empty{text-align:center;padding:30px 18px;border:2px dashed rgba(255,255,255,.28);border-radius:var(--radius)}
+.empty p{margin:0 0 14px;color:rgba(255,255,255,.82)}
+
+/* foco ------------------------------------------------------------ */
+.focus{display:grid;gap:16px;align-items:center}
+@media(min-width:560px){.focus{grid-template-columns:auto 1fr}}
+.timer{font-family:var(--font-display);font-size:clamp(44px,12vw,64px);line-height:1;letter-spacing:-.02em;text-align:center}
+
+/* premium lock ---------------------------------------------------- */
+.locked{position:relative}
+.locked__veil{
+  position:absolute;inset:0;border-radius:var(--radius);
+  background:rgba(4,17,60,.82);display:grid;place-items:center;text-align:center;padding:18px;gap:10px;
+}
+.locked__veil svg{width:26px;height:26px;margin:0 auto}
+.locked__content{filter:blur(4px);opacity:.6;pointer-events:none;user-select:none}
+
+/* gráfico --------------------------------------------------------- */
+.chart{display:flex;align-items:flex-end;gap:8px;height:132px;margin-top:6px}
+.chart div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%}
+.chart span{width:100%;background:var(--blue-500);border-radius:3px 3px 0 0;min-height:4px}
+.chart .lbl{font-size:11px;color:rgba(255,255,255,.75);letter-spacing:.04em}
+.chart .hi{background:var(--lime-400)}
+
+/* calendário ------------------------------------------------------ */
+.calhead{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.calhead h2{margin:0;flex:1;text-align:center;text-transform:capitalize}
+.calnav{width:44px;height:44px;border-radius:10px;border:2px solid rgba(255,255,255,.3);background:none;cursor:pointer;font-size:18px;line-height:1}
+.calnav:hover{border-color:var(--lime-400);color:var(--lime-400)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .dow{text-align:center;font-size:11px;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.7);padding-bottom:4px}
+.calday{
+  aspect-ratio:1;border-radius:9px;padding:0;cursor:pointer;position:relative;
+  border:1.5px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);
+  font-weight:700;font-size:13.5px;color:rgba(255,255,255,.88);
+  display:grid;place-items:center;
+}
+.calday.lvl1{background:rgba(182,246,90,.2);border-color:rgba(182,246,90,.4)}
+.calday.lvl2{background:rgba(182,246,90,.5);border-color:rgba(182,246,90,.7);color:var(--ink-950)}
+.calday.lvl3{background:var(--lime-400);border-color:var(--lime-400);color:var(--ink-950)}
+.calday.today{border-color:var(--blue-500);border-width:2.5px}
+.calday[aria-pressed="true"]{box-shadow:0 0 0 3px rgba(255,255,255,.55)}
+.calday .ci{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--blue-300)}
+.calday.lvl2 .ci,.calday.lvl3 .ci{background:var(--ink-900)}
+.calday.void{visibility:hidden}
+.calday:disabled{opacity:.3;cursor:default}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px;font-size:12.5px;color:rgba(255,255,255,.78)}
+.legend i{display:inline-block;width:13px;height:13px;border-radius:4px;margin-right:6px;vertical-align:-2px;border:1.5px solid rgba(255,255,255,.2)}
+.daylog{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:10px}
+.daylog li{display:flex;gap:12px;align-items:baseline;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.1)}
+.daylog li:last-child{border-bottom:0;padding-bottom:0}
+.daylog b{font-family:var(--font-display);font-size:13px;color:var(--lime-400);min-width:46px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+@media(min-width:640px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:rgba(0,0,0,.22);border-radius:var(--radius-s);padding:14px}
+.kpi b{display:block;font-family:var(--font-display);font-size:22px;line-height:1.1}
+.kpi span{font-size:12px;color:rgba(255,255,255,.78);letter-spacing:.04em}
+
+/* planos ---------------------------------------------------------- */
+.plans{display:grid;gap:16px}
+@media(min-width:760px){.plans{grid-template-columns:1fr 1fr}}
+.plan{background:var(--ink-700);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;position:relative}
+.plan--premium{background:var(--ink-950);border:2px solid var(--lime-400)}
+.plan__name{font-family:var(--font-display);text-transform:uppercase;font-size:26px;margin:0;line-height:1}
+.plan__price{font-size:22px;font-weight:700;color:var(--blue-300);margin:6px 0 18px}
+.plan--premium .plan__price{color:var(--lime-400)}
+.plan ul{list-style:none;margin:0 0 22px;padding:0;display:grid;gap:11px}
+.plan li{display:flex;gap:11px;align-items:flex-start;font-size:15.5px}
+.plan li svg{width:20px;height:20px;flex:none;margin-top:2px;color:var(--blue-300)}
+.plan--premium li svg{color:var(--lime-400)}
+.plan .btn{margin-top:auto}
+.badge{position:absolute;top:-13px;right:20px;background:var(--lime-400);color:var(--ink-950);font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:6px}
+
+/* checkout -------------------------------------------------------- */
+.sheet{position:fixed;inset:0;z-index:80;display:grid;align-items:end}
+.sheet__veil{position:absolute;inset:0;background:rgba(2,8,40,.72);border:0;width:100%;height:100%;cursor:pointer}
+.sheet__panel{
+  position:relative;background:var(--ink-900);border-radius:20px 20px 0 0;
+  width:100%;max-width:560px;margin:0 auto;max-height:92vh;max-height:92dvh;overflow:auto;
+  padding:22px var(--pad) calc(26px + env(safe-area-inset-bottom));
+  animation:up .3s ease;
+}
+@keyframes up{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+@media(min-width:640px){.sheet{align-items:center}.sheet__panel{border-radius:20px}}
+.sheet__close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.14);border:0;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:18px;line-height:1}
+.steps{display:flex;gap:6px;margin:0 0 20px}
+.steps i{flex:1;height:7px;background:rgba(255,255,255,.2);border-radius:1px}
+.steps i.on{background:var(--lime-400)}
+.tier{display:grid;gap:10px;margin-bottom:6px}
+.summary{background:rgba(0,0,0,.26);border-radius:var(--radius-s);padding:16px;margin:16px 0}
+.summary dl{margin:0;display:grid;grid-template-columns:1fr auto;gap:9px 14px}
+.summary dt{color:rgba(255,255,255,.8);font-size:14.5px}
+.summary dd{margin:0;font-weight:700;text-align:right}
+.total{border-top:1px solid rgba(255,255,255,.24);padding-top:12px;margin-top:12px;font-family:var(--font-display);font-size:20px}
+.pix{background:#fff;border-radius:var(--radius-s);padding:16px;display:grid;gap:12px;place-items:center;color:var(--ink-950)}
+.pix code{font-size:12px;word-break:break-all;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.demo-note{font-size:13px;color:var(--warn);font-weight:600;display:flex;gap:8px;align-items:flex-start;margin-top:14px}
+.success{text-align:center;padding:14px 0}
+.success .mark{width:84px;height:84px;border-radius:50%;background:var(--lime-400);display:grid;place-items:center;margin:0 auto 18px;color:var(--ink-950)}
+.success .mark svg{width:42px;height:42px}
+
+/* toast ----------------------------------------------------------- */
+.toasts{position:fixed;left:0;right:0;bottom:calc(var(--nav-h) + 14px);z-index:90;display:grid;gap:8px;padding:0 var(--pad);pointer-events:none}
+.toast{
+  max-width:520px;margin:0 auto;width:100%;background:var(--lime-400);color:var(--ink-950);
+  font-weight:700;padding:13px 17px;border-radius:var(--radius-s);box-shadow:0 12px 30px rgba(0,0,0,.35);
+  animation:fade .25s ease;
+}
+.toast--info{background:#fff}
+
+@media(max-width:400px){
+  .task__time{min-width:46px;font-size:13px}
+  .task__times input{width:88px;padding:8px 6px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+
+<body>
+<div class="toasts" id="toasts" role="status" aria-live="polite" aria-atomic="false"></div>
+
+<!-- ================================================================
+     ENTRAR / CRIAR CONTA
+     ================================================================ -->
+<div class="onb" id="authScreen" hidden>
+  <div class="onb__body" id="authBody" style="display:flex;flex-direction:column;justify-content:center"><!-- injetado via JS --></div>
+</div>
+
+<!-- ================================================================
+     ONBOARDING
+     ================================================================ -->
+<div class="onb" id="onboarding" hidden>
+  <div class="onb__bar" id="onbBar" role="progressbar" aria-label="Progresso do cadastro" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1">
+    <i class="on"></i><i></i><i></i><i></i><i></i>
+  </div>
+
+  <div class="onb__body" id="onbBody"><!-- passos injetados via JS --></div>
+
+  <div class="onb__foot">
+    <button class="btn btn--ghost" id="onbBack" type="button">Voltar</button>
+    <button class="btn btn--lime" id="onbNext" type="button">Continuar</button>
+  </div>
+</div>
+
+<!-- ================================================================
+     APP
+     ================================================================ -->
+<div id="app" hidden>
+  <header class="appbar">
+    <div class="appbar__in">
+      <a class="brand" href="index.html">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 34V6h9l10 14V6h9v28h-9L15 20v14z" fill="#1B7BFF"/></svg>
+        Neuro<em>Sync</em>
+      </a>
+      <div class="appbar__right">
+        <span class="chip chip--soft" id="planChip">Básico</span>
+        <button class="avatar" id="avatarBtn" aria-label="Abrir perfil">NS</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="screen" id="screen-hoje" aria-labelledby="tit-hoje"></section>
+    <section class="screen" id="screen-rotina" aria-labelledby="tit-rotina" hidden></section>
+    <section class="screen" id="screen-checkin" aria-labelledby="tit-checkin" hidden></section>
+    <section class="screen" id="screen-historico" aria-labelledby="tit-historico" hidden></section>
+    <section class="screen" id="screen-planos" aria-labelledby="tit-planos" hidden></section>
+    <section class="screen" id="screen-perfil" aria-labelledby="tit-perfil" hidden></section>
+  </main>
+
+  <nav class="tabbar" aria-label="Navegação principal">
+    <ul>
+      <li><button type="button" data-go="hoje" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.2 5.2l1.9 1.9M16.9 16.9l1.9 1.9M18.8 5.2l-1.9 1.9M7.1 16.9l-1.9 1.9"/></svg>
+        Hoje</button></li>
+      <li><button type="button" data-go="rotina">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5 5.6 8l3-3M4 13.5 5.6 15l3-3M4 20.5 5.6 22l3-3M12 6h8M12 13h8M12 20h8"/></svg>
+        Rotina</button></li>
+      <li><button type="button" data-go="checkin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12.5h4l2-4.5 3.2 9 2.4-6 1.6 3h5.8"/></svg>
+        Check-in</button></li>
+      <li><button type="button" data-go="historico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3.5v3M16 3.5v3M7.5 13h3M13.5 13h3M7.5 16.5h3"/></svg>
+        Histórico</button></li>
+      <li><button type="button" data-go="planos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.8L21 9.6l-4.6 4.3 1.2 6.3L12 17.1 6.4 20.2l1.2-6.3L3 9.6l6.3-.8z"/></svg>
+        Planos</button></li>
+      <li><button type="button" data-go="perfil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.4-4 4-6 7.5-6s6.1 2 7.5 6"/></svg>
+        Perfil</button></li>
+    </ul>
+  </nav>
+</div>
+
+<!-- container de folhas modais (checkout etc.) -->
+<div id="sheetRoot"></div>
+
+<script>
+"use strict";
+/* ================================================================
+   1. PERSISTÊNCIA — dados salvos no servidor, associados à conta
+   ================================================================ */
+const Store = {
+  async save(state) {
+    try {
+      await fetch("/api/state", {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state })
+      });
+    } catch (e) {}
+  }
+};
+
+/* ================================================================
+   1b. AUTENTICAÇÃO — entrar / criar conta
+   ================================================================ */
+let authMode = "login";
+
+function renderAuth(errorMsg) {
+  const body = document.getElementById("authBody");
+  body.innerHTML = `
+    <div style="max-width:400px;margin:0 auto;width:100%">
+      <a class="brand" href="index.html" style="margin-bottom:28px">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 34V6h9l10 14V6h9v28h-9L15 20v14z" fill="#1B7BFF"/></svg>
+        Neuro<em>Sync</em>
+      </a>
+      <h1 class="display d-l">${authMode === "login" ? "Entrar" : "Criar conta"}</h1>
+      <p class="muted" style="margin:8px 0 24px">${authMode === "login"
+        ? "Acesse sua rotina de qualquer dispositivo."
+        : "Seus dados ficam guardados com segurança, associados ao seu e-mail."}</p>
+      <form id="authForm" novalidate>
+        ${authMode === "signup" ? `
+        <div class="field">
+          <label for="authName">Como quer ser chamado</label>
+          <input class="input" id="authName" type="text" autocomplete="name" placeholder="Seu nome ou apelido">
+        </div>` : ""}
+        <div class="field">
+          <label for="authEmail">E-mail</label>
+          <input class="input" id="authEmail" type="email" autocomplete="email" inputmode="email" placeholder="voce@email.com" required>
+        </div>
+        <div class="field">
+          <label for="authPassword">Senha</label>
+          <input class="input" id="authPassword" type="password" autocomplete="${authMode === "login" ? "current-password" : "new-password"}" placeholder="Mínimo 6 caracteres" minlength="6" required>
+        </div>
+        <p class="err" id="authErr">${errorMsg ? esc(errorMsg) : ""}</p>
+        <button class="btn btn--lime btn--block" type="submit" id="authSubmit">${authMode === "login" ? "Entrar" : "Criar conta"}</button>
+      </form>
+      <p class="muted" style="text-align:center;margin-top:18px;font-size:14.5px">
+        ${authMode === "login" ? "Ainda não tem conta?" : "Já tem conta?"}
+        <button class="btn btn--ghost btn--sm" id="authToggle" type="button" style="margin-left:8px">${authMode === "login" ? "Criar conta" : "Entrar"}</button>
+      </p>
+    </div>`;
+
+  document.getElementById("authToggle").addEventListener("click", () => {
+    authMode = authMode === "login" ? "signup" : "login";
+    renderAuth();
+  });
+  document.getElementById("authForm").addEventListener("submit", handleAuthSubmit);
+  const first = document.getElementById(authMode === "signup" ? "authName" : "authEmail");
+  if (first) first.focus({ preventScroll: true });
+}
+
+async function handleAuthSubmit(e) {
+  e.preventDefault();
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+  const nameField = document.getElementById("authName");
+  const name = nameField ? nameField.value.trim() : "";
+  const submitBtn = document.getElementById("authSubmit");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Aguarde…";
+  try {
+    const res = await fetch(authMode === "login" ? "/api/login" : "/api/signup", {
+      method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, name })
+    });
+    const data = await res.json();
+    if (!res.ok) { renderAuth(data.error || "Algo deu errado."); return; }
+    await afterAuth(data);
+  } catch (err) {
+    renderAuth("Não foi possível conectar ao servidor.");
+  }
+}
+
+/** Campos que pertencem à conta (não ao blob de state) — sempre reaplicados após carregar/atualizar. */
+function applyAccountMeta(account) {
+  state.user.code = account.code || null;
+  state.user.sponsoring = account.sponsoring || null;
+  state.user.pendingInvite = account.pendingInvite || null;
+  state.user.sponsoredBy = account.sponsoredBy || null;
+}
+/** Rebusca a conta no servidor (após uma ação de apadrinhamento) e repinta o Perfil. */
+async function refreshAccountMeta() {
+  try {
+    const res = await fetch("/api/me", { credentials: "include" });
+    if (res.ok) applyAccountMeta(await res.json());
+  } catch (e) {}
+}
+
+async function afterAuth(account) {
+  const saved = account.state;
+  state = saved && saved.user ? migrate(Object.assign(blankState(), saved)) : blankState();
+  applyAccountMeta(account);
+  document.getElementById("authScreen").hidden = true;
+  if (state.onboarded) {
+    document.getElementById("onboarding").hidden = true;
+    document.getElementById("app").hidden = false;
+    paintChrome();
+    const name = location.hash.replace("#/", "");
+    go(RENDER[name] ? name : "hoje");
+  } else {
+    draft.email = account.email;
+    draft.name = account.name || "";
+    step = 0;
+    document.getElementById("app").hidden = true;
+    document.getElementById("onboarding").hidden = false;
+    renderStep();
+  }
+}
+
+function showAuth() {
+  state = null;
+  document.getElementById("app").hidden = true;
+  document.getElementById("onboarding").hidden = true;
+  authMode = "login";
+  document.getElementById("authScreen").hidden = false;
+  renderAuth();
+}
+
+/* ================================================================
+   2. ESTADO
+   ================================================================ */
+const PERIODS = [
+  { id: "manha", label: "Manhã", range: "06h – 12h", from: 0, to: 12 * 60 },
+  { id: "tarde", label: "Tarde", range: "12h – 18h", from: 12 * 60, to: 18 * 60 },
+  { id: "noite", label: "Noite", range: "18h – 24h", from: 18 * 60, to: 24 * 60 }
+];
+const COST = { restaura: -3, leve: 2, medio: 4, pesado: 7 };
+const DUR = { restaura: 30, leve: 15, medio: 30, pesado: 60 };   // duração sugerida por custo
+const WEEK = [
+  { i: 0, letter: "D", short: "dom", label: "domingo" },
+  { i: 1, letter: "S", short: "seg", label: "segunda-feira" },
+  { i: 2, letter: "T", short: "ter", label: "terça-feira" },
+  { i: 3, letter: "Q", short: "qua", label: "quarta-feira" },
+  { i: 4, letter: "Q", short: "qui", label: "quinta-feira" },
+  { i: 5, letter: "S", short: "sex", label: "sexta-feira" },
+  { i: 6, letter: "S", short: "sáb", label: "sábado" }
+];
+const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
+const UTEIS = [1, 2, 3, 4, 5];
+const FDS = [0, 6];
+const COST_LABEL = { restaura: "Recarrega", leve: "Leve", medio: "Médio", pesado: "Pesado" };
+const PRIO_LABEL = { essencial: "Essencial", importante: "Importante", opcional: "Opcional" };
+const LEGACY_TIME = { manha: "09:00", tarde: "14:00", noite: "20:00" };
+const CURVE = {
+  autismo: [1, .9, .68], tdah: [.72, 1, .92], ambos: [.85, 1, .74], investigando: [.88, .95, .8]
+};
+
+let state = null;
+let route = "hoje";
+
+function blankState() {
+  return {
+    user: { name: "", email: "", profile: "investigando", wake: "07:00", sleep: "23:00", rhythm: 50, plan: "basico", tier: null, since: null },
+    onboarded: false,
+    tasks: [],
+    checkins: [],
+    focus: [],
+    history: [],
+    wearable: null
+  };
+}
+const uid = () => Math.random().toString(36).slice(2, 9);
+const isoDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const today = () => isoDate(new Date());
+const fmtBR = (s) => (s ? s.split("-").reverse().join("/") : "—");
+const toMin = (hm) => { const p = String(hm || "").split(":"); return (+p[0] || 0) * 60 + (+p[1] || 0); };
+const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+const hhmm = (min) => String(Math.floor(min / 60)).padStart(2, "0") + ":" + String(min % 60).padStart(2, "0");
+const byTime = (a, b) => (a.time ? 0 : 1) - (b.time ? 0 : 1) || toMin(a.time) - toMin(b.time) || toMin(a.end) - toMin(b.end);
+const taskDur = (t) => (t.time && t.end ? Math.max(0, toMin(t.end) - toMin(t.time)) : 0);
+const fmtDur = (m) => (m >= 60 ? Math.floor(m / 60) + "h" + (m % 60 ? String(m % 60).padStart(2, "0") : "") : m + " min");
+const addMin = (hm, min) => hhmm(Math.min(23 * 60 + 59, toMin(hm) + min));
+const sameDays = (a, b) => a.length === b.length && b.every(d => a.includes(d));
+const daysOf = (t) => (Array.isArray(t.days) ? t.days : ALL_DAYS);
+/** A tarefa de rotina acontece neste dia da semana? */
+const runsOn = (t, weekday) => t.kind !== "rotina" || daysOf(t).includes(weekday);
+function daysLabel(days) {
+  if (sameDays(days, ALL_DAYS)) return "Todo dia";
+  if (sameDays(days, UTEIS)) return "Dias úteis";
+  if (sameDays(days, FDS)) return "Fim de semana";
+  return WEEK.filter(d => days.includes(d.i)).map(d => d.short).join(", ");
+}
+/** Ids de tarefas que se sobrepõem no relógio (lista ordenada por início). */
+function overlapIds(list) {
+  const set = new Set();
+  for (let i = 0; i < list.length; i++) {
+    const a = list[i];
+    if (!a.end) continue;
+    for (let j = i + 1; j < list.length; j++) {
+      const b = list[j];
+      if (toMin(b.time) < toMin(a.end)) { set.add(a.id); set.add(b.id); } else break;
+    }
+  }
+  return set;
+}
+/** Tarefa de rotina zera todo dia; tarefa solta é feita uma vez só. */
+const isDone = (t) => (t.kind === "avulsa" ? !!t.done : t.lastDone === today());
+const stepsOf = (t) => (Array.isArray(t.steps) ? t.steps : []);
+const stepDone = (t, s) => (t.kind === "avulsa" ? !!s.doneAt : s.doneAt === today());
+const stepProgress = (t) => {
+  const list = stepsOf(t);
+  return { total: list.length, done: list.filter(s => stepDone(t, s)).length };
+};
+/** Registra/desfaz a conclusão sem alternar (usado pelos passos). */
+function setDone(t, done) {
+  const d = today();
+  if (t.kind === "avulsa") { t.done = done; t.doneAt = done ? d : null; }
+  else { t.lastDone = done ? d : null; }
+  if (done) {
+    if (!state.history.some(h => h.taskId === t.id && h.date === d)) {
+      state.history.push({ date: d, at: hhmm(nowMin()), taskId: t.id, title: t.title, kind: t.kind, cost: t.cost });
+    }
+  } else {
+    state.history = state.history.filter(h => !(h.taskId === t.id && h.date === d));
+  }
+}
+
+/** Checkbox da tarefa: leva todos os passos junto. */
+function toggleDone(t) {
+  const done = !isDone(t);
+  setDone(t, done);
+  stepsOf(t).forEach(s => { s.doneAt = done ? today() : null; });
+  return done;
+}
+
+/** Checkbox de um passo: o último passo fecha a tarefa, desmarcar reabre. */
+function toggleStep(t, stepId) {
+  const s = stepsOf(t).find(x => x.id === stepId);
+  if (!s) return false;
+  s.doneAt = stepDone(t, s) ? null : today();
+  const p = stepProgress(t);
+  if (p.total && p.done === p.total) setDone(t, true);
+  else if (isDone(t)) setDone(t, false);
+  return stepDone(t, s);
+}
+const doneOn = (iso) => state.history.filter(h => h.date === iso);
+const focusOn = (iso) => state.focus.filter(f => f.date === iso);
+/** Dias seguidos com ao menos uma tarefa concluída. */
+function streak() {
+  const d = new Date();
+  if (!doneOn(isoDate(d)).length) d.setDate(d.getDate() - 1);
+  let n = 0;
+  while (doneOn(isoDate(d)).length) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+/** Migra tarefas antigas (blocos manhã/tarde/noite) para o novo modelo. */
+function migrate(st) {
+  (st.tasks || []).forEach(t => {
+    if (t.end === undefined) t.end = "";
+    if (t.kind === "rotina" && !Array.isArray(t.days)) t.days = ALL_DAYS.slice();
+    if (t.kind) return;
+    t.kind = "rotina";
+    t.days = ALL_DAYS.slice();
+    t.time = LEGACY_TIME[t.block] || "";
+    t.lastDone = t.done ? today() : null;
+    delete t.block; delete t.done;
+  });
+
+  if (!Array.isArray(st.history)) {
+    st.history = [];
+    (st.tasks || []).forEach(t => {
+      const d = t.kind === "avulsa" ? t.doneAt : t.lastDone;
+      if (d) st.history.push({ date: d, at: "", taskId: t.id, title: t.title, kind: t.kind, cost: t.cost });
+    });
+  }
+  return st;
+}
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const brl = (n) => "R$ " + n.toFixed(2).replace(".", ",");
+
+async function persist() { await Store.save(state); }
+
+/* ================================================================
+   3. CÉREBRO DIGITAL — capacidade e adaptação da rotina
+   ================================================================ */
+function checkinOf(date) { return state.checkins.find(c => c.date === date) || null; }
+
+function capacity(c) {
+  if (!c) return { points: 14, level: 3, source: "estimado" };
+  let pts = c.energy * 4;
+  pts += c.sleep >= 7 ? 2 : c.sleep >= 5 ? 0 : -2;
+  pts -= (c.overload - 1);
+  pts += c.mood >= 4 ? 1 : (c.mood <= 2 ? -1 : 0);
+  return { points: Math.max(4, Math.min(24, Math.round(pts))), level: c.energy, source: "check-in" };
+}
+
+const ENERGY_TEXT = {
+  1: { title: "Dia de proteger o essencial", msg: "Deixei só o mínimo em pé. O resto espera, e tudo bem." },
+  2: { title: "Dia curto de bateria", msg: "Priorizei o essencial e um pouco do importante." },
+  3: { title: "Dia possível", msg: "Dá para manter o essencial e avançar no que importa." },
+  4: { title: "Dia bom", msg: "Sua rotina cabe inteira e ainda sobra espaço." },
+  5: { title: "Dia de pico", msg: "Aproveite: incluí até o que é opcional." }
+};
+
+/** Distribui as tarefas do dia dentro do orçamento de energia. */
+/** Tarefas que entram no dia de hoje. */
+function todayList() {
+  const t0 = today();
+  const weekday = new Date().getDay();
+  return state.tasks.filter(t => {
+    if (t.kind === "rotina") return runsOn(t, weekday);
+    if (t.done) return t.doneAt === t0;
+    return !t.date || t.date <= t0;
+  });
+}
+
+/** Distribui as tarefas do dia dentro do orçamento de energia. */
+function planDay() {
+  const c = checkinOf(today());
+  const cap = capacity(c);
+  const order = { essencial: 0, importante: 1, opcional: 2 };
+  const list = todayList().slice()
+    // tarefas que recarregam entram primeiro: a energia que elas dão abre espaço para o resto do dia
+    .sort((a, b) => Math.sign(COST[a.cost]) - Math.sign(COST[b.cost])
+      || (order[a.priority] - order[b.priority]) || (COST[a.cost] - COST[b.cost]));
+
+  let used = 0;
+  const active = [], later = [];
+  list.forEach(t => {
+    if (isDone(t)) { active.push(t); return; }
+    const cost = COST[t.cost];
+    if (t.priority === "essencial" || cost <= 0 || used + cost <= cap.points) { used += cost; active.push(t); }
+    else later.push(t);
+  });
+  return { cap, active, later, used, overloaded: used > cap.points };
+}
+
+function dayCurve() {
+  const c = checkinOf(today());
+  const base = c ? c.energy : 3;
+  const mult = CURVE[state.user.profile] || CURVE.investigando;
+  return mult.map(m => Math.max(1, Math.min(5, Math.round(base * m * 10) / 10)));
+}
+
+/* ================================================================
+   4. TOASTS
+   ================================================================ */
+function toast(msg, kind) {
+  const box = document.getElementById("toasts");
+  const el = document.createElement("div");
+  el.className = "toast" + (kind === "info" ? " toast--info" : "");
+  el.textContent = msg;
+  box.appendChild(el);
+  setTimeout(() => el.remove(), 3800);
+}
+
+/* ================================================================
+   5. ONBOARDING
+   ================================================================ */
+let step = 0;
+const draft = { name: "", email: "", profile: "", wake: "07:00", sleep: "23:00", rhythm: 50, tasks: [] };
+
+const SUGGESTED = [
+  { title: "Tomar a medicação", time: "08:00", end: "08:10", priority: "essencial", cost: "leve" },
+  { title: "Café da manhã com calma", time: "08:30", end: "09:00", priority: "essencial", cost: "restaura" },
+  { title: "Bloco de trabalho focado", time: "10:00", end: "11:30", days: UTEIS, priority: "importante", cost: "pesado",
+    steps: ["Escolher a única tarefa do bloco", "Silenciar notificações", "Trabalhar até o timer acabar"] },
+  { title: "Almoçar sem tela", time: "12:30", end: "13:15", priority: "essencial", cost: "restaura" },
+  { title: "Responder mensagens", time: "15:00", end: "15:30", days: UTEIS, priority: "importante", cost: "medio" },
+  { title: "Tempo de lazer", time: "", end: "", priority: "opcional", cost: "restaura" },
+  { title: "Caminhada curta", time: "", end: "", priority: "opcional", cost: "medio" },
+  { title: "Arrumar um canto da casa", time: "", end: "", priority: "opcional", cost: "medio" },
+  { title: "Desligar telas antes de dormir", time: "22:00", end: "22:20", priority: "importante", cost: "leve" }
+];
+
+const steps = [
+  () => `
+    <p class="eyebrow">Bem-vindo</p>
+    <h1 class="display d-xl">Sua rotina <span class="t-lime">se adapta</span> a você</h1>
+    <div class="rule rule--lime" aria-hidden="true"><i></i><i></i><i></i></div>
+    <p class="muted" style="margin-top:22px">
+      A NeuroSync monta o seu dia a partir da energia que você tem hoje — não da energia
+      que um app acha que você deveria ter. São 4 perguntas rápidas, dá para mudar tudo depois.
+    </p>
+    <div class="card card--deep" style="margin-top:24px">
+      <h2 class="display d-m">O que vem a seguir</h2>
+      <ol class="muted" style="margin:12px 0 0;padding-left:20px">
+        <li>Seu nome e e-mail</li>
+        <li>Como seu cérebro funciona</li>
+        <li>Seus horários e seu ritmo</li>
+        <li>As primeiras tarefas do dia</li>
+      </ol>
+    </div>`,
+
+  () => `
+    <p class="eyebrow">Passo 1 de 4</p>
+    <h1 class="display d-l">Quem está chegando?</h1>
+    <div class="rule" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div style="margin-top:24px">
+      <div class="field">
+        <label for="obName">Como quer ser chamado</label>
+        <input class="input" id="obName" type="text" autocomplete="given-name" placeholder="Seu nome ou apelido" value="${esc(draft.name)}">
+        <p class="err" id="errName"></p>
+      </div>
+      <p class="muted" style="font-size:14px">Conta: ${esc(draft.email)}</p>
+    </div>`,
+
+  () => {
+    const opt = (v, t, d) => `<label class="opt"><input type="radio" name="profile" value="${v}" ${draft.profile === v ? "checked" : ""}><span>${t}<small>${d}</small></span></label>`;
+    return `
+    <p class="eyebrow">Passo 2 de 4</p>
+    <h1 class="display d-l">Como seu cérebro funciona</h1>
+    <div class="rule" aria-hidden="true"><i></i><i></i><i></i></div>
+    <p class="muted" style="margin-top:18px">Isso define como a rotina se reorganiza nos dias difíceis. Laudo não é obrigatório.</p>
+    <fieldset style="margin-top:20px">
+      <legend class="sr-only">Perfil neurodivergente</legend>
+      <div class="opts">
+        ${opt("autismo", "Autismo", "Preciso de previsibilidade e aviso antes das mudanças")}
+        ${opt("tdah", "TDAH", "Preciso de variação e recompensa rápida para engatar")}
+        ${opt("ambos", "Autismo e TDAH", "As duas coisas, ao mesmo tempo")}
+        ${opt("investigando", "Ainda investigando", "Sem diagnóstico fechado, mas a rotina pesa")}
+      </div>
+      <p class="err" id="errProfile"></p>
+    </fieldset>`;
+  },
+
+  () => `
+    <p class="eyebrow">Passo 3 de 4</p>
+    <h1 class="display d-l">Seu ritmo</h1>
+    <div class="rule" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="row" style="margin-top:24px;gap:16px">
+      <div class="field" style="flex:1;min-width:140px">
+        <label for="obWake">Costumo acordar</label>
+        <input class="input" id="obWake" type="time" value="${draft.wake}">
+      </div>
+      <div class="field" style="flex:1;min-width:140px">
+        <label for="obSleep">Costumo dormir</label>
+        <input class="input" id="obSleep" type="time" value="${draft.sleep}">
+      </div>
+    </div>
+    <div class="field">
+      <label for="obRhythm">Do que você precisa mais?</label>
+      <input id="obRhythm" type="range" min="0" max="100" step="10" value="${draft.rhythm}" style="width:100%" aria-describedby="rhythmOut">
+      <div class="between" style="font-size:13px;color:rgba(255,255,255,.8)">
+        <span>Rotina firme</span><span>Flexibilidade</span>
+      </div>
+      <p class="hint" id="rhythmOut" aria-live="polite"></p>
+    </div>`,
+
+  () => `
+    <p class="eyebrow">Passo 4 de 4</p>
+    <h1 class="display d-l">O que precisa caber hoje</h1>
+    <div class="rule" aria-hidden="true"><i></i><i></i><i></i></div>
+    <p class="muted" style="margin-top:18px">Toque para escolher. Cada uma entra com um horário sugerido — dá para mudar, tirar a hora ou apagar depois.</p>
+    <div class="opts" style="margin-top:18px" id="obTasks">
+      ${SUGGESTED.map((t, i) => `
+        <label class="opt"><input type="checkbox" value="${i}" ${draft.tasks.includes(i) ? "checked" : ""}>
+        <span>${esc(t.title)}<small>${t.time ? t.time + " – " + t.end : "quando der"} · ${daysLabel(t.days || ALL_DAYS).toLowerCase()} · ${COST_LABEL[t.cost]}</small></span></label>`).join("")}
+    </div>`
+];
+
+function renderStep() {
+  const body = document.getElementById("onbBody");
+  body.innerHTML = `<div class="onb__step">${steps[step]()}</div>`;
+  document.getElementById("onbBack").hidden = step === 0;
+  document.getElementById("onbNext").textContent = step === steps.length - 1 ? "Criar minha rotina" : "Continuar";
+  const bar = document.getElementById("onbBar");
+  [...bar.children].forEach((i, idx) => i.classList.toggle("on", idx <= step));
+  bar.setAttribute("aria-valuenow", String(step + 1));
+
+  if (step === 3) {
+    const r = document.getElementById("obRhythm");
+    const out = document.getElementById("rhythmOut");
+    const say = () => {
+      const v = +r.value;
+      out.textContent = v <= 30 ? "Blocos fixos, mudanças sempre avisadas."
+        : v >= 70 ? "Blocos soltos, o app reorganiza quando o dia virar."
+        : "Estrutura no essencial, liberdade no resto.";
+    };
+    r.addEventListener("input", say); say();
+  }
+  const first = body.querySelector("input");
+  if (first && step > 0) first.focus({ preventScroll: true });
+}
+
+function collectStep() {
+  if (step === 1) {
+    const n = document.getElementById("obName");
+    draft.name = n.value.trim();
+    if (draft.name.length < 2) {
+      document.getElementById("errName").textContent = "Escreva ao menos 2 letras.";
+      n.setAttribute("aria-invalid", "true"); n.focus();
+      return false;
+    }
+    document.getElementById("errName").textContent = ""; n.removeAttribute("aria-invalid");
+    return true;
+  }
+  if (step === 2) {
+    const sel = document.querySelector('input[name="profile"]:checked');
+    if (!sel) { document.getElementById("errProfile").textContent = "Escolha a opção mais próxima de você."; return false; }
+    draft.profile = sel.value; return true;
+  }
+  if (step === 3) {
+    draft.wake = document.getElementById("obWake").value || "07:00";
+    draft.sleep = document.getElementById("obSleep").value || "23:00";
+    draft.rhythm = +document.getElementById("obRhythm").value;
+    return true;
+  }
+  if (step === 4) {
+    draft.tasks = [...document.querySelectorAll("#obTasks input:checked")].map(i => +i.value);
+    return true;
+  }
+  return true;
+}
+
+async function finishOnboarding() {
+  const meta = { code: state.user.code, sponsoring: state.user.sponsoring, pendingInvite: state.user.pendingInvite, sponsoredBy: state.user.sponsoredBy };
+  state.user = {
+    name: draft.name, email: draft.email, profile: draft.profile,
+    wake: draft.wake, sleep: draft.sleep, rhythm: draft.rhythm,
+    plan: meta.sponsoredBy ? "premium" : "basico", tier: null, since: today(),
+    ...meta
+  };
+  state.tasks = draft.tasks.map(i => ({
+    id: uid(), title: SUGGESTED[i].title, kind: "rotina", time: SUGGESTED[i].time, end: SUGGESTED[i].end,
+    days: (SUGGESTED[i].days || ALL_DAYS).slice(),
+    steps: (SUGGESTED[i].steps || []).map(title => ({ id: uid(), title, doneAt: null })),
+    priority: SUGGESTED[i].priority, cost: SUGGESTED[i].cost, lastDone: null, created: today()
+  }));
+  state.onboarded = true;
+  await persist();
+  document.getElementById("onboarding").hidden = true;
+  document.getElementById("app").hidden = false;
+  paintChrome();
+  go("checkin");
+  toast("Conta criada. Agora me conta como você está hoje.");
+}
+
+document.getElementById("onbNext").addEventListener("click", () => {
+  if (!collectStep()) return;
+  if (step === steps.length - 1) { finishOnboarding(); return; }
+  step++; renderStep();
+});
+document.getElementById("onbBack").addEventListener("click", () => { if (step > 0) { step--; renderStep(); } });
+
+/* ================================================================
+   6. TELAS DO APP
+   ================================================================ */
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+}
+
+function gaugeSVG(level) {
+  const pct = Math.max(0, Math.min(1, level / 5));
+  const r = 54, c = 2 * Math.PI * r, len = c * pct;
+  return `<svg class="gauge" viewBox="0 0 130 130" role="img" aria-label="Energia de hoje: ${level} de 5">
+    <circle cx="65" cy="65" r="${r}" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="13"/>
+    <circle cx="65" cy="65" r="${r}" fill="none" stroke="#B6F65A" stroke-width="13" stroke-linecap="round"
+      stroke-dasharray="${len.toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 65 65)"/>
+    <text x="65" y="70" text-anchor="middle" font-size="34" fill="#fff">${level}</text>
+    <text x="65" y="88" text-anchor="middle" font-size="11" fill="rgba(255,255,255,.8)" font-family="Archivo, sans-serif">de 5</text>
+  </svg>`;
+}
+
+function taskLI(t, opts) {
+  opts = opts || {};
+  const done = isDone(t);
+  const n = nowMin();
+  const running = !done && t.time && t.end && toMin(t.time) <= n && n < toMin(t.end);
+  const late = !done && !running && t.time && toMin(t.end || t.time) < n && !opts.editTime;
+  const dur = taskDur(t);
+
+  const off = opts.editDays && t.kind === "rotina" && !runsOn(t, new Date().getDay());
+  const steps = stepsOf(t);
+  const prog = stepProgress(t);
+  const open = expanded.has(t.id);
+  return `<li class="task ${done ? "task--done" : ""} ${running ? "task--now" : ""} ${off ? "task--off" : ""}" data-id="${t.id}">
+    ${opts.editTime ? "" : `<span class="task__time ${t.time ? "" : "task__time--free"}">
+      ${t.time ? `<b>${t.time}</b>${t.end ? `<i>${t.end}</i>` : ""}` : "quando der"}
+    </span>`}
+    <button class="task__check" type="button" data-act="toggle" aria-pressed="${done}" aria-label="${done ? "Marcar como não feita" : "Marcar como feita"}: ${esc(t.title)}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6"/></svg>
+    </button>
+    <div class="task__body">
+      <div class="task__title">${esc(t.title)}</div>
+      ${steps.length && !done ? `<div class="progress-mini" role="img" aria-label="${prog.done} de ${prog.total} passos concluídos"><i style="width:${Math.round((prog.done / prog.total) * 100)}%"></i></div>` : ""}
+      <div class="task__meta">
+        ${running ? '<span class="tag tag--next">Agora</span>' : ""}
+        ${opts.next ? '<span class="tag tag--next">Próxima</span>' : ""}
+        ${dur ? `<span class="tag">${fmtDur(dur)}</span>` : ""}
+        <span class="tag ${t.priority === "essencial" ? "tag--ess" : t.priority === "importante" ? "tag--imp" : ""}">${PRIO_LABEL[t.priority]}</span>
+        <span class="tag ${t.cost === "restaura" ? "tag--restaura" : ""}">${t.cost === "restaura" ? "+ " : ""}${COST_LABEL[t.cost]}</span>
+        ${steps.length ? `<span class="tag tag--steps">${prog.done}/${prog.total} passos</span>` : ""}
+        ${t.kind === "avulsa" ? '<span class="tag tag--once">Uma vez</span>' : ""}
+        ${t.kind === "avulsa" && t.date && t.date !== today() && !done ? `<span class="tag">${fmtBR(t.date)}</span>` : ""}
+        ${opts.overlap ? '<span class="tag tag--warn">Choque de horário</span>' : ""}
+        ${late ? '<span class="tag tag--late">Passou do horário</span>' : ""}
+      </div>
+      ${steps.length && open ? `<ul class="substeps" id="steps-${t.id}">
+        ${steps.map((sp, i) => `<li class="${stepDone(t, sp) ? "is-done" : ""}">
+          <button class="task__check task__check--sm" type="button" data-act="step" data-step="${sp.id}"
+            aria-pressed="${stepDone(t, sp)}" aria-label="Passo ${i + 1}, ${esc(sp.title)}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6"/></svg>
+          </button>
+          <span>${esc(sp.title)}</span>
+        </li>`).join("")}
+      </ul>` : ""}
+      ${opts.editDays && t.kind === "rotina" ? `<div class="daystrip" role="group" aria-label="Dias de ${esc(t.title)}: ${daysLabel(daysOf(t))}">
+        ${WEEK.map(d => `<button type="button" data-act="day" data-day="${d.i}" aria-pressed="${daysOf(t).includes(d.i)}" aria-label="${d.label}" title="${d.label}">${d.letter}</button>`).join("")}
+      </div>` : ""}
+    </div>
+    ${opts.editTime ? `<div class="task__times">
+      <input class="input" type="time" data-act="time" value="${t.time || ""}" aria-label="Início de ${esc(t.title)}">
+      <span aria-hidden="true">→</span>
+      <input class="input" type="time" data-act="end" value="${t.end || ""}" aria-label="Término de ${esc(t.title)}">
+    </div>` : ""}
+    ${steps.length ? `<button class="task__act" type="button" data-act="steps" aria-expanded="${open}" aria-controls="steps-${t.id}" aria-label="${open ? "Esconder" : "Ver"} os ${prog.total} passos de ${esc(t.title)}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate(${open ? 180 : 0}deg)"><path d="M6 9.5 12 15.5 18 9.5"/></svg>
+    </button>` : ""}
+    ${opts.focus && !done ? `<button class="task__act" type="button" data-act="focus" aria-label="Focar em: ${esc(t.title)}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M8 5.5 18.5 12 8 18.5z"/></svg>
+    </button>` : ""}
+    <button class="task__act" type="button" data-act="edit" aria-label="Editar tarefa: ${esc(t.title)}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17v3zM14.5 6.5l3 3"/></svg>
+    </button>
+  </li>`;
+}
+
+/* ---------- HOJE ---------- */
+function renderHoje() {
+  const c = checkinOf(today());
+  const plan = planDay();
+  const lvl = plan.cap.level;
+  const txt = ENERGY_TEXT[Math.max(1, Math.min(5, lvl))];
+  const curve = dayCurve();
+  const premium = state.user.plan === "premium";
+  const n = nowMin();
+
+  const timed = plan.active.filter(t => t.time).sort(byTime);
+  const free = plan.active.filter(t => !t.time);
+  const clash = overlapIds(timed);
+  const running = timed.find(t => !isDone(t) && t.end && toMin(t.time) <= n && n < toMin(t.end));
+  const next = timed.find(t => !isDone(t) && toMin(t.time) >= n && t !== running);
+  const doneToday = plan.active.filter(isDone).length;
+  const booked = timed.filter(t => !isDone(t)).reduce((sum, t) => sum + taskDur(t), 0);
+
+  const pending = plan.active.filter(t => !isDone(t));
+  if (focusTask && !pending.some(t => t.id === focusTask)) focusTask = null;
+  const sel = focusTask ? state.tasks.find(t => t.id === focusTask) : null;
+  const focusLen = sel ? (taskDur(sel) || focusMinutes(lvl)) : focusMinutes(lvl);
+  const nextStep = sel ? stepsOf(sel).find(sp => !stepDone(sel, sp)) : null;
+  const sessions = state.focus.filter(f => f.date === today());
+  const sessionMin = sessions.reduce((sum, f) => sum + f.minutes, 0);
+
+  const nowLine = `<li class="now"><span>agora · ${hhmm(n)}</span></li>`;
+  let marked = false;
+  let rows = timed.map(t => {
+    let pre = "";
+    if (!marked && toMin(t.time) >= n) { pre = nowLine; marked = true; }
+    return pre + taskLI(t, { next: !!next && next.id === t.id, overlap: clash.has(t.id), focus: true });
+  }).join("");
+  if (timed.length && !marked) rows += nowLine;
+
+  document.getElementById("screen-hoje").innerHTML = `
+    <div class="screen__head">
+      <p class="eyebrow">${new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}</p>
+      <h1 class="display d-xl" id="tit-hoje">${greeting()},<br><span class="t-lime">${esc(state.user.name.split(" ")[0] || "você")}</span></h1>
+      <div class="rule rule--lime" aria-hidden="true"><i></i><i></i><i></i></div>
+    </div>
+
+    <div class="stack">
+      <div class="energy">
+        ${gaugeSVG(lvl)}
+        <div>
+          <p class="energy__label">${txt.title}</p>
+          <p class="muted" style="margin:0">${txt.msg}</p>
+          <div class="budget" aria-hidden="true">${Array.from({ length: 24 }, (_, i) => `<i class="${i < plan.cap.points ? "on" : ""}"></i>`).join("")}</div>
+          <p class="muted" style="font-size:13.5px;margin:10px 0 0">
+            Capacidade de hoje: <strong>${plan.cap.points} pontos</strong> · ${plan.used < 0 ? `energia extra ganha: <strong class="t-lime">+${-plan.used}</strong>` : `livre pra uso: <strong>${plan.cap.points - plan.used}</strong>`}
+            ${c ? "" : ' · <span class="t-blue">estimativa, faça o check-in</span>'}
+          </p>
+          <div class="row" style="margin-top:14px">
+            <button class="btn btn--lime btn--sm" data-go="checkin" type="button">${c ? "Refazer check-in" : "Fazer check-in de hoje"}</button>
+            ${plan.overloaded ? '<span class="chip" style="background:rgba(255,194,74,.2);color:#FFD98A">Acima da capacidade</span>' : ""}
+          </div>
+        </div>
+      </div>
+
+      ${running ? `<div class="card card--deep next-up next-up--live">
+        <div style="width:100%">
+          <p class="eyebrow" style="margin:0 0 4px">Acontecendo agora · ${running.time} – ${running.end}</p>
+          <p class="display d-m" style="margin:0">${esc(running.title)}</p>
+          <p class="muted" style="margin:6px 0 0;font-size:14px">Termina em ${fmtDur(toMin(running.end) - n)} · ${COST_LABEL[running.cost]}</p>
+          <div class="runbar" aria-hidden="true"><i style="width:${Math.round(((n - toMin(running.time)) / Math.max(1, taskDur(running))) * 100)}%"></i></div>
+        </div>
+      </div>` : next ? `<div class="card card--deep next-up">
+        <div>
+          <p class="eyebrow" style="margin:0 0 4px">A seguir · ${next.time}${next.end ? " – " + next.end : ""}</p>
+          <p class="display d-m" style="margin:0">${esc(next.title)}</p>
+          <p class="muted" style="margin:6px 0 0;font-size:14px">${PRIO_LABEL[next.priority]} · ${COST_LABEL[next.cost]}${next.kind === "avulsa" ? " · uma vez só" : ""}</p>
+        </div>
+        <p class="next-up__in">em ${fmtDur(Math.max(0, toMin(next.time) - n))}</p>
+      </div>` : ""}
+
+      ${plan.overloaded ? `<div class="card" style="border-left:6px solid var(--warn)">
+        <h2 class="display d-m">Seus essenciais passam do limite de hoje</h2>
+        <p class="muted" style="margin:8px 0 0">Mantive todos eles na lista porque são essenciais — mas se puder, quebre um deles em duas partes menores ou empurre para amanhã. Não é falta de dedicação.</p>
+      </div>` : ""}
+
+      ${timed.length ? `<section class="block">
+        <div class="block__head">
+          <h3>No horário</h3>
+          ${booked ? `<span class="muted" style="font-size:12.5px">${fmtDur(booked)} marcadas</span>` : ""}
+          <span class="chip chip--soft">${timed.length}</span>
+        </div>
+        ${clash.size ? `<p class="muted" style="padding:12px 18px 0;margin:0;font-size:13.5px">${clash.size} tarefas se sobrepõem no relógio. Ajuste o término em Rotina se quiser separar.</p>` : ""}
+        <ul class="tasks">${rows}</ul>
+      </section>` : ""}
+
+      ${free.length ? `<section class="block">
+        <div class="block__head"><h3>Quando der</h3><span class="muted" style="font-size:12.5px">sem hora marcada</span><span class="chip chip--soft">${free.length}</span></div>
+        <ul class="tasks">${free.map(t => taskLI(t, { focus: true })).join("")}</ul>
+      </section>` : ""}
+
+      ${!timed.length && !free.length ? `<div class="empty"><p>Nada na sua rotina ainda.</p><button class="btn btn--lime" data-go="rotina" type="button">Adicionar primeira tarefa</button></div>` : ""}
+
+      ${plan.later.length ? `<div class="later">
+        <h2 class="display d-m">Adiado com carinho</h2>
+        <p class="muted" style="margin:6px 0 12px;font-size:14.5px">Não cabe na energia de hoje. Volta automaticamente quando sobrar espaço.</p>
+        <ul class="muted" style="margin:0;padding-left:20px">${plan.later.map(t => `<li>${t.time ? t.time + (t.end ? " – " + t.end : "") + " · " : ""}${esc(t.title)} <span class="muted" style="font-size:13px">(${COST_LABEL[t.cost]})</span></li>`).join("")}</ul>
+      </div>` : ""}
+
+      <div class="card">
+        <div class="between" style="margin-bottom:6px">
+          <h2 class="display d-m">Widget de foco</h2>
+          <span class="chip chip--soft">Grátis</span>
+        </div>
+        <div class="field" style="margin:14px 0 10px">
+          <label for="focusPick">Focar em</label>
+          <select id="focusPick">
+            <option value="">Foco livre — ${focusMinutes(lvl)} min</option>
+            ${pending.map(t => `<option value="${t.id}" ${sel && sel.id === t.id ? "selected" : ""}>${esc(t.title)}${taskDur(t) ? " — " + fmtDur(taskDur(t)) : " — " + focusMinutes(lvl) + " min"}</option>`).join("")}
+          </select>
+          <p class="hint">${sel
+            ? (nextStep ? 'Próximo passo: <strong>' + esc(nextStep.title) + '</strong>' : (taskDur(sel) ? "Sessão do tamanho da tarefa." : "Sem horário definido, uso a sugestão da sua energia."))
+            : "Sessão sugerida para energia " + lvl + "."}</p>
+        </div>
+        <div class="focus">
+          <p class="timer" id="timerOut" aria-live="off">00:00</p>
+          <div class="row">
+            <button class="btn btn--lime btn--sm" id="timerStart" type="button">Iniciar foco</button>
+            <button class="btn btn--ghost btn--sm" id="timerReset" type="button">Zerar</button>
+            ${sel ? `<button class="btn btn--ghost btn--sm" id="focusDone" type="button">Concluir tarefa</button>` : ""}
+          </div>
+        </div>
+        <p class="muted" style="margin:14px 0 0;font-size:13.5px">
+          Hoje: ${sessions.length} ${sessions.length === 1 ? "sessão" : "sessões"}${sessionMin ? " · " + fmtDur(sessionMin) + " de foco" : ""}.
+        </p>
+      </div>
+
+      <div class="card ${premium ? "" : "locked"}">
+        ${premium ? "" : `<div class="locked__veil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#B6F65A" stroke-width="1.9" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10.5" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <p style="margin:0;font-weight:700">Previsão de energia por período</p>
+          <p class="muted" style="margin:0;font-size:14px">Disponível no Plano Premium</p>
+          <button class="btn btn--lime btn--sm" data-go="planos" type="button">Ver planos</button>
+        </div>`}
+        <div class="${premium ? "" : "locked__content"}">
+          <div class="between"><h2 class="display d-m">IA preditiva de energia</h2><span class="chip chip--lime">Premium</span></div>
+          <p class="muted" style="margin:8px 0 0;font-size:14.5px">Como sua energia tende a se distribuir hoje, com base no seu perfil e no histórico.</p>
+          <div class="chart" role="img" aria-label="Previsão de energia: manhã ${curve[0]}, tarde ${curve[1]}, noite ${curve[2]}, numa escala de 1 a 5">
+            ${curve.map((v, i) => `<div><span class="${v === Math.max(...curve) ? "hi" : ""}" style="height:${(v / 5) * 100}%"></span><span class="lbl">${PERIODS[i].label}</span></div>`).join("")}
+          </div>
+          <p class="muted" style="font-size:14px;margin:12px 0 0">Melhor janela para o que é pesado: <strong class="t-lime">${PERIODS[curve.indexOf(Math.max(...curve))].label.toLowerCase()}</strong>${heavyOutOfWindow(timed, curve) ? " — você tem tarefa pesada marcada fora dela." : "."}</p>
+        </div>
+      </div>
+
+      <p class="muted" style="text-align:center;font-size:14px">${doneToday} de ${plan.active.length} concluídas hoje · ${state.checkins.length} check-ins registrados</p>
+    </div>`;
+
+  bindTasks(document.getElementById("screen-hoje"));
+  bindTimer(focusLen);
+
+  document.getElementById("focusPick").addEventListener("change", (e) => {
+    stopTimer();
+    focusTask = e.target.value || null;
+    renderHoje();
+    const pick = document.getElementById("focusPick");
+    if (pick) pick.focus({ preventScroll: true });
+  });
+
+  const fd = document.getElementById("focusDone");
+  if (fd) fd.addEventListener("click", async () => {
+    const t = state.tasks.find(x => x.id === focusTask); if (!t) return;
+    toggleDone(t); stopTimer(); focusTask = null;
+    await persist(); toast("Feito. Isso contou.");
+    renderHoje();
+  });
+}
+
+/** Existe tarefa pesada marcada fora da melhor janela de energia? */
+function heavyOutOfWindow(timed, curve) {
+  const best = PERIODS[curve.indexOf(Math.max(...curve))];
+  return timed.some(t => t.cost === "pesado" && !isDone(t) && (toMin(t.time) < best.from || toMin(t.time) >= best.to));
+}
+
+/** Existe tarefa pesada marcada fora da melhor janela de energia? */
+function heavyOutOfWindow(timed, curve) {
+  const best = PERIODS[curve.indexOf(Math.max(...curve))];
+  return timed.some(t => t.cost === "pesado" && !isDone(t) && (toMin(t.time) < best.from || toMin(t.time) >= best.to));
+}
+
+function focusMinutes(lvl) { return lvl <= 1 ? 10 : lvl === 2 ? 15 : lvl === 3 ? 25 : lvl === 4 ? 35 : 45; }
+
+/* ---------- timer de foco ---------- */
+let timerId = null, timerLeft = 0, timerRunning = false, timerMinutes = 25;
+let focusTask = null;      // id da tarefa em foco (null = foco livre)
+const expanded = new Set();  // tarefas com os passos abertos na lista
+function stopTimer() { clearInterval(timerId); timerId = null; timerRunning = false; }
+function paintTimer() {
+  const out = document.getElementById("timerOut");
+  if (!out) return;
+  const m = Math.floor(Math.max(0, timerLeft) / 60), s = Math.max(0, timerLeft) % 60;
+  out.textContent = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+}
+async function tick() {
+  timerLeft--; paintTimer();
+  if (timerLeft > 0) return;
+  stopTimer();
+  const t = focusTask ? state.tasks.find(x => x.id === focusTask) : null;
+  state.focus.push({ date: today(), minutes: timerMinutes, taskId: t ? t.id : null, title: t ? t.title : "" });
+  await persist();
+  toast(t ? 'Sessão concluída em "' + t.title + '".' : "Sessão de foco concluída. Faça uma pausa de verdade.");
+  if (route === "hoje") renderHoje();
+}
+function bindTimer(minutes) {
+  const start = document.getElementById("timerStart");
+  const reset = document.getElementById("timerReset");
+  if (!start) return;
+  if (!timerRunning) { timerMinutes = minutes; timerLeft = minutes * 60; }
+  paintTimer();
+  start.textContent = timerRunning ? "Pausar" : (timerLeft === timerMinutes * 60 ? "Iniciar foco" : "Retomar");
+  start.onclick = () => {
+    if (timerRunning) { clearInterval(timerId); timerId = null; timerRunning = false; start.textContent = "Retomar"; return; }
+    timerRunning = true; start.textContent = "Pausar";
+    timerId = setInterval(tick, 1000);
+  };
+  reset.onclick = () => {
+    clearInterval(timerId); timerId = null; timerRunning = false;
+    timerLeft = timerMinutes * 60; paintTimer(); start.textContent = "Iniciar foco";
+  };
+}
+
+/* ================================================================
+   6b. FORMULÁRIO DE TAREFA (reaproveitado em "nova" e em "editar")
+   ================================================================ */
+/** Monta os campos com um prefixo de id, preenchidos por `t`. */
+let stepDraft = { nt: [], ed: [] };
+
+function taskFields(p, t) {
+  t = t || {};
+  stepDraft[p] = stepsOf(t).map(s => ({ id: s.id, title: s.title, doneAt: s.doneAt || null }));
+  const kind = t.kind || "rotina";
+  const days = Array.isArray(t.days) ? t.days : ALL_DAYS;
+  const prio = t.priority || "importante";
+  const cost = t.cost || "medio";
+  const sel = (v, x) => (v === x ? "selected" : "");
+  return `
+    <div class="field">
+      <label for="${p}Title">O que precisa acontecer</label>
+      <input class="input" id="${p}Title" type="text" maxlength="90" placeholder="Ex.: tomar a medicação" value="${esc(t.title || "")}">
+      <p class="err" id="${p}ErrTitle"></p>
+    </div>
+
+    <fieldset>
+      <legend>Tipo</legend>
+      <div class="opts opts--2">
+        <label class="opt"><input type="radio" name="${p}Kind" value="rotina" ${kind === "rotina" ? "checked" : ""}>
+          <span>Faz parte da rotina<small>Volta nos dias que você escolher</small></span></label>
+        <label class="opt"><input type="radio" name="${p}Kind" value="avulsa" ${kind === "avulsa" ? "checked" : ""}>
+          <span>Tarefa solta<small>Uma vez só e sai da lista</small></span></label>
+      </div>
+    </fieldset>
+
+    <fieldset id="${p}DaysWrap" ${kind === "avulsa" ? "hidden" : ""}>
+      <legend>Em quais dias</legend>
+      <div class="days" id="${p}Days">
+        ${WEEK.map(d => `<label class="day"><input type="checkbox" value="${d.i}" ${days.includes(d.i) ? "checked" : ""} aria-label="${d.label}"><span aria-hidden="true">${d.letter}</span></label>`).join("")}
+      </div>
+      <div class="presets">
+        <button class="btn btn--ghost btn--sm" type="button" data-preset="todos">Todo dia</button>
+        <button class="btn btn--ghost btn--sm" type="button" data-preset="uteis">Dias úteis</button>
+        <button class="btn btn--ghost btn--sm" type="button" data-preset="fds">Fim de semana</button>
+      </div>
+      <p class="err" id="${p}ErrDays"></p>
+    </fieldset>
+
+    <div class="row" style="gap:14px">
+      <div class="field" style="flex:1;min-width:130px">
+        <label for="${p}Time">Começa às</label>
+        <input class="input" id="${p}Time" type="time" value="${t.time || ""}">
+        <p class="hint">Vazio = "quando der".</p>
+      </div>
+      <div class="field" style="flex:1;min-width:130px">
+        <label for="${p}End">Termina às</label>
+        <input class="input" id="${p}End" type="time" value="${t.end || ""}">
+        <p class="hint" id="${p}DurOut">Preenche sozinho pelo custo.</p>
+      </div>
+      <div class="field" id="${p}DateWrap" style="flex:1;min-width:150px" ${kind === "avulsa" ? "" : "hidden"}>
+        <label for="${p}Date">Para quando</label>
+        <input class="input" id="${p}Date" type="date" value="${t.date || today()}">
+        <p class="hint">Aparece em Hoje a partir dessa data.</p>
+      </div>
+    </div>
+
+    <fieldset>
+      <legend>Passos (opcional)</legend>
+      <p class="hint" style="margin:-4px 0 12px">Quebre a tarefa grande em pedaços menores. Concluir todos os passos fecha a tarefa inteira.</p>
+      <ul class="steplist" id="${p}Steps"></ul>
+      <button class="btn btn--ghost btn--sm" type="button" id="${p}AddStep">+ Adicionar passo</button>
+    </fieldset>
+
+    <div class="row" style="gap:14px">
+      <div class="field" style="flex:1;min-width:150px">
+        <label for="${p}Prio">Importância</label>
+        <select id="${p}Prio">
+          <option value="essencial" ${sel(prio, "essencial")}>Essencial — não pode cair</option>
+          <option value="importante" ${sel(prio, "importante")}>Importante</option>
+          <option value="opcional" ${sel(prio, "opcional")}>Opcional</option>
+        </select>
+      </div>
+      <div class="field" style="flex:1;min-width:150px">
+        <label for="${p}Cost">Custo de energia</label>
+        <select id="${p}Cost">
+          <option value="restaura" ${sel(cost, "restaura")}>Dá energia — lazer, boa alimentação (+3 pts)</option>
+          <option value="leve" ${sel(cost, "leve")}>Leve (2 pts)</option>
+          <option value="medio" ${sel(cost, "medio")}>Médio (4 pts)</option>
+          <option value="pesado" ${sel(cost, "pesado")}>Pesado (7 pts)</option>
+        </select>
+      </div>
+    </div>`;
+}
+
+/** Desenha a lista editável de passos e religa os controles. */
+function renderStepList(p, root) {
+  const ul = root.querySelector("#" + p + "Steps");
+  const list = stepDraft[p];
+  ul.innerHTML = list.length
+    ? list.map((s, i) => `<li>
+        <input class="input" type="text" maxlength="80" data-i="${i}" value="${esc(s.title)}" placeholder="Passo ${i + 1}" aria-label="Passo ${i + 1}">
+        <button class="stepbtn" type="button" data-move="-1" data-i="${i}" ${i === 0 ? "disabled" : ""} aria-label="Subir passo ${i + 1}">↑</button>
+        <button class="stepbtn" type="button" data-move="1" data-i="${i}" ${i === list.length - 1 ? "disabled" : ""} aria-label="Descer passo ${i + 1}">↓</button>
+        <button class="stepbtn" type="button" data-del="${i}" aria-label="Remover passo ${i + 1}">✕</button>
+      </li>`).join("")
+    : `<li><p class="muted" style="margin:0;font-size:14px">Nenhum passo. A tarefa funciona normalmente sem eles.</p></li>`;
+
+  ul.querySelectorAll("input[data-i]").forEach(inp => inp.addEventListener("input", () => {
+    list[+inp.dataset.i].title = inp.value;
+  }));
+  ul.querySelectorAll("[data-move]").forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.i, j = i + +b.dataset.move;
+    if (j < 0 || j >= list.length) return;
+    [list[i], list[j]] = [list[j], list[i]];
+    renderStepList(p, root);
+    const focusBtn = root.querySelector(`#${p}Steps li:nth-child(${j + 1}) [data-move="${b.dataset.move}"]`);
+    if (focusBtn) focusBtn.focus({ preventScroll: true });
+  }));
+  ul.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
+    list.splice(+b.dataset.del, 1);
+    renderStepList(p, root);
+    root.querySelector("#" + p + "AddStep").focus({ preventScroll: true });
+  }));
+}
+
+/** Liga os comportamentos dinâmicos dos campos (tipo, presets, duração). */
+function bindTaskFields(p, root) {
+  root = root || document;
+  const el = (id) => root.querySelector("#" + p + id);
+  const time = el("Time"), end = el("End"), cost = el("Cost"), out = el("DurOut");
+  let endTouched = !!(end && end.value);
+
+  const showDur = () => {
+    if (!time.value || !end.value) { out.textContent = "Preenche sozinho pelo custo."; return; }
+    const d = toMin(end.value) - toMin(time.value);
+    out.textContent = d > 0 ? "Duração: " + fmtDur(d) : "O término precisa ser depois do início.";
+  };
+  const suggest = () => {
+    if (!time.value) { end.value = ""; showDur(); return; }
+    if (!endTouched || !end.value) end.value = addMin(time.value, DUR[cost.value]);
+    showDur();
+  };
+  end.addEventListener("input", () => { endTouched = true; showDur(); });
+  time.addEventListener("change", suggest);
+  cost.addEventListener("change", suggest);
+  showDur();
+
+  root.querySelectorAll(`input[name="${p}Kind"]`).forEach(r => r.addEventListener("change", () => {
+    const avulsa = root.querySelector(`input[name="${p}Kind"]:checked`).value === "avulsa";
+    el("DateWrap").hidden = !avulsa;
+    el("DaysWrap").hidden = avulsa;
+  }));
+
+  renderStepList(p, root);
+  el("AddStep").addEventListener("click", () => {
+    stepDraft[p].push({ id: uid(), title: "", doneAt: null });
+    renderStepList(p, root);
+    const inputs = root.querySelectorAll("#" + p + "Steps input");
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  });
+
+  el("DaysWrap").querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => {
+    const set = b.dataset.preset === "uteis" ? UTEIS : b.dataset.preset === "fds" ? FDS : ALL_DAYS;
+    el("Days").querySelectorAll("input").forEach(i => { i.checked = set.includes(+i.value); });
+    el("ErrDays").textContent = "";
+  }));
+}
+
+/** Lê e valida os campos. Retorna null (e foca o erro) quando inválido. */
+function readTaskFields(p, root) {
+  root = root || document;
+  const el = (id) => root.querySelector("#" + p + id);
+  const title = el("Title").value.trim();
+  const errTitle = el("ErrTitle"), errDays = el("ErrDays");
+  errTitle.textContent = ""; errDays.textContent = "";
+  el("Title").removeAttribute("aria-invalid");
+
+  if (title.length < 2) {
+    errTitle.textContent = "Escreva o que precisa acontecer.";
+    el("Title").setAttribute("aria-invalid", "true"); el("Title").focus(); return null;
+  }
+  const kind = root.querySelector(`input[name="${p}Kind"]:checked`).value;
+  const days = [...el("Days").querySelectorAll("input:checked")].map(i => +i.value).sort((a, b) => a - b);
+  if (kind === "rotina" && !days.length) {
+    errDays.textContent = "Escolha ao menos um dia da semana.";
+    el("Days").querySelector("input").focus(); return null;
+  }
+  const start = el("Time").value || "";
+  const end = el("End").value || "";
+  if (end && !start) { errTitle.textContent = "Defina também o horário de início."; el("Time").focus(); return null; }
+  if (start && end && toMin(end) <= toMin(start)) {
+    errTitle.textContent = "O término precisa ser depois do início."; el("End").focus(); return null;
+  }
+  const steps = stepDraft[p].filter(x => x.title.trim()).map(x => ({ id: x.id, title: x.title.trim(), doneAt: x.doneAt || null }));
+
+  return {
+    title, kind, days, steps,
+    time: start, end: start ? end : "",
+    date: el("Date").value || today(),
+    priority: el("Prio").value,
+    cost: el("Cost").value
+  };
+}
+
+/** Abre a folha de edição completa de uma tarefa já existente. */
+function openTaskEditor(id) {
+  const t = state.tasks.find(x => x.id === id);
+  if (!t) return;
+  sheetFocus = document.activeElement;
+  document.body.style.overflow = "hidden";
+  document.getElementById("sheetRoot").innerHTML = `
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="edTitleHead">
+      <button class="sheet__veil" type="button" aria-label="Fechar edição"></button>
+      <div class="sheet__panel">
+        <button class="sheet__close" type="button" aria-label="Fechar">✕</button>
+        <h2 class="display d-l" id="edTitleHead">Editar tarefa</h2>
+        <p class="muted" style="margin:10px 0 20px;font-size:14.5px">Dá para mudar tudo, inclusive transformar uma tarefa de rotina em solta e vice-versa.</p>
+        ${taskFields("ed", t)}
+        <button class="btn btn--lime btn--block" id="edSave" type="button" style="margin-top:6px">Salvar alterações</button>
+        <button class="btn btn--ghost btn--block" id="edCancel" type="button" style="margin-top:10px">Cancelar</button>
+        <button class="btn btn--danger btn--block" id="edDelete" type="button" style="margin-top:10px">Apagar tarefa</button>
+      </div>
+    </div>`;
+
+  const root = document.getElementById("sheetRoot");
+  root.querySelector(".sheet__veil").addEventListener("click", closeSheet);
+  root.querySelector(".sheet__close").addEventListener("click", closeSheet);
+  root.querySelector("#edCancel").addEventListener("click", closeSheet);
+  document.removeEventListener("keydown", sheetKeys);
+  document.addEventListener("keydown", sheetKeys);
+  bindTaskFields("ed", root);
+
+  let armed = false;
+  const del = root.querySelector("#edDelete");
+  del.addEventListener("click", async () => {
+    if (!armed) {
+      armed = true; del.textContent = "Tocar de novo para apagar";
+      setTimeout(() => { armed = false; del.textContent = "Apagar tarefa"; }, 5000);
+      return;
+    }
+    state.tasks = state.tasks.filter(x => x.id !== id);
+    await persist(); closeSheet(); toast("Tarefa apagada.", "info");
+    route === "hoje" ? renderHoje() : renderRotina();
+  });
+
+  root.querySelector("#edSave").addEventListener("click", async () => {
+    const data = readTaskFields("ed", root);
+    if (!data) return;
+    const wasDoneToday = isDone(t);
+
+    t.title = data.title;
+    t.time = data.time; t.end = data.end;
+    t.priority = data.priority; t.cost = data.cost;
+    t.steps = data.steps;
+
+    if (data.kind === "rotina") {
+      t.kind = "rotina"; t.days = data.days;
+      t.lastDone = wasDoneToday ? today() : (t.lastDone || null);
+      delete t.done; delete t.doneAt; delete t.date;
+    } else {
+      t.kind = "avulsa"; t.date = data.date;
+      t.done = wasDoneToday; t.doneAt = wasDoneToday ? today() : null;
+      delete t.days; delete t.lastDone;
+    }
+
+    const pr = stepProgress(t);
+    if (pr.total && pr.done === pr.total) setDone(t, true);
+    else if (pr.total && isDone(t) && pr.done < pr.total) setDone(t, false);
+
+    await persist(); closeSheet(); toast("Tarefa atualizada.");
+    route === "hoje" ? renderHoje() : renderRotina();
+  });
+
+  const h = root.querySelector("h2");
+  h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true });
+}
+
+/* ---------- ROTINA ---------- */
+function renderRotina() {
+  const weekday = new Date().getDay();
+  const rotina = state.tasks.filter(t => t.kind === "rotina").sort(byTime);
+  const hoje = rotina.filter(t => runsOn(t, weekday));
+  const abertas = state.tasks.filter(t => t.kind === "avulsa" && !t.done)
+    .sort((a, b) => String(a.date || "9999").localeCompare(String(b.date || "9999")) || byTime(a, b));
+  const feitas = state.tasks.filter(t => t.kind === "avulsa" && t.done);
+
+  document.getElementById("screen-rotina").innerHTML = `
+    <div class="screen__head">
+      <p class="eyebrow">Sua rotina</p>
+      <h1 class="display d-xl" id="tit-rotina">Rotina<br><span class="t-blue">adaptativa</span></h1>
+      <div class="rule" aria-hidden="true"><i></i><i></i><i></i></div>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <h2 class="display d-m">Nova tarefa</h2>
+        <div style="margin-top:16px">
+          ${taskFields("nt")}
+          <button class="btn btn--lime btn--block" id="addTask" type="button">Adicionar</button>
+        </div>
+      </div>
+
+      <section class="block">
+        <div class="block__head"><h3>Rotina da semana</h3><span class="muted" style="font-size:12.5px">${hoje.length} hoje</span><span class="chip chip--soft">${rotina.length}</span></div>
+        ${rotina.length ? `<div class="weekbar" aria-hidden="true">
+            ${WEEK.map(d => `<div class="${d.i === weekday ? "on" : ""}">${d.letter}<b>${rotina.filter(t => daysOf(t).includes(d.i)).length}</b></div>`).join("")}
+          </div>
+          <ul class="tasks">${rotina.map(t => taskLI(t, { editTime: true, editDays: true })).join("")}</ul>`
+          : `<p class="muted" style="padding:16px 18px;margin:0;font-size:14.5px">Nada fixo ainda. Horários e dias podem ser editados direto na lista.</p>`}
+      </section>
+
+      <section class="block">
+        <div class="block__head"><h3>Tarefas soltas</h3><span class="muted" style="font-size:12.5px">uma vez só</span><span class="chip chip--soft">${abertas.length}</span></div>
+        ${abertas.length ? `<ul class="tasks">${abertas.map(t => taskLI(t, { editTime: true })).join("")}</ul>`
+          : `<p class="muted" style="padding:16px 18px;margin:0;font-size:14.5px">Nenhuma pendência avulsa. Use para o que aparece uma vez só: consulta, boleto, ligar para alguém.</p>`}
+      </section>
+
+      ${feitas.length ? `<section class="block">
+        <div class="block__head"><h3>Soltas já feitas</h3><span class="chip chip--soft">${feitas.length}</span>
+          <button class="btn btn--ghost btn--sm" id="clearDone" type="button" style="margin-left:auto">Limpar</button></div>
+        <ul class="tasks">${feitas.map(t => taskLI(t)).join("")}</ul>
+      </section>` : ""}
+
+      <div class="card card--deep">
+        <h2 class="display d-m">Como a adaptação funciona</h2>
+        <p class="muted" style="margin:10px 0 0;font-size:15px">
+          Cada tarefa custa pontos de energia e tem o horário que você escolher — ou nenhum, se for
+          daquelas de “quando der”. O check-in define quantos pontos você tem no dia: o essencial sempre
+          entra, o resto é distribuído até o orçamento acabar e volta sozinho quando sobrar espaço.
+          Tarefa de rotina só aparece nos dias da semana que você marcar e desmarca sozinha no dia
+          seguinte; tarefa solta sai da lista quando você faz. Tarefa grande pode virar passos:
+          o custo de energia continua sendo o da tarefa inteira, e fechar o último passo fecha ela.
+          Para mudar qualquer coisa depois — título, tipo, horário, dias, passos, importância ou
+          custo — toque no lápis da tarefa.
+        </p>
+      </div>
+    </div>`;
+
+  bindTasks(document.getElementById("screen-rotina"));
+  bindTaskFields("nt");
+  document.getElementById("addTask").addEventListener("click", addTask);
+  document.getElementById("ntTitle").addEventListener("keydown", e => { if (e.key === "Enter") addTask(); });
+  const clear = document.getElementById("clearDone");
+  if (clear) clear.addEventListener("click", async () => {
+    state.tasks = state.tasks.filter(t => !(t.kind === "avulsa" && t.done));
+    await persist(); toast("Concluídas removidas.", "info"); renderRotina();
+  });
+}
+
+async function addTask() {
+  const data = readTaskFields("nt");
+  if (!data) return;
+
+  const task = {
+    id: uid(), title: data.title, kind: data.kind,
+    time: data.time, end: data.end,
+    priority: data.priority, cost: data.cost,
+    created: today()
+  };
+  task.steps = data.steps;
+  if (data.kind === "avulsa") { task.done = false; task.doneAt = null; task.date = data.date; }
+  else { task.lastDone = null; task.days = data.days; }
+
+  state.tasks.push(task);
+  await persist();
+  toast(data.kind === "avulsa" ? "Tarefa solta anotada." : "Na rotina: " + daysLabel(data.days).toLowerCase() + ".");
+  renderRotina();
+  document.getElementById("ntTitle").focus();
+}
+
+function bindTasks(root) {
+  root.querySelectorAll(".task").forEach(li => {
+    const id = li.dataset.id;
+    const refresh = () => (route === "hoje" ? renderHoje() : renderRotina());
+
+    li.querySelector('[data-act="toggle"]').addEventListener("click", async () => {
+      const t = state.tasks.find(x => x.id === id); if (!t) return;
+      const done = toggleDone(t); await persist();
+      if (done) toast(t.kind === "avulsa" ? "Feito e fora da lista." : "Feito. Isso contou.");
+      refresh();
+    });
+
+    li.querySelector('[data-act="edit"]').addEventListener("click", () => openTaskEditor(id));
+
+    const exp = li.querySelector('[data-act="steps"]');
+    if (exp) exp.addEventListener("click", () => {
+      expanded.has(id) ? expanded.delete(id) : expanded.add(id);
+      refresh();
+      const btn = document.querySelector(`.task[data-id="${id}"] [data-act="steps"]`);
+      if (btn) btn.focus({ preventScroll: true });
+    });
+
+    li.querySelectorAll('[data-act="step"]').forEach(b => b.addEventListener("click", async () => {
+      const t = state.tasks.find(x => x.id === id); if (!t) return;
+      const wasDone = isDone(t);
+      toggleStep(t, b.dataset.step);
+      await persist();
+      const p = stepProgress(t);
+      if (!wasDone && isDone(t)) toast("Todos os passos feitos. Tarefa concluída.");
+      else if (p.done < p.total) toast(p.done + " de " + p.total + " passos.", "info");
+      refresh();
+    }));
+
+    const foc = li.querySelector('[data-act="focus"]');
+    if (foc) foc.addEventListener("click", () => {
+      stopTimer();
+      focusTask = id;
+      renderHoje();
+      const pick = document.getElementById("focusPick");
+      if (pick) { pick.scrollIntoView({ block: "center" }); pick.focus({ preventScroll: true }); }
+      const t = state.tasks.find(x => x.id === id);
+      if (t) toast('Foco em "' + t.title + '".', "info");
+    });
+
+    li.querySelectorAll('[data-act="day"]').forEach(btn => btn.addEventListener("click", async () => {
+      const t = state.tasks.find(x => x.id === id); if (!t) return;
+      const d = +btn.dataset.day;
+      const days = daysOf(t).slice();
+      const i = days.indexOf(d);
+      if (i >= 0) {
+        if (days.length === 1) { toast("A tarefa precisa de pelo menos um dia.", "info"); return; }
+        days.splice(i, 1);
+      } else days.push(d);
+      t.days = days.sort((a, b) => a - b);
+      await persist();
+      toast(esc(t.title) + ": " + daysLabel(t.days).toLowerCase() + ".", "info");
+      refresh();
+    }));
+
+    const startEl = li.querySelector('[data-act="time"]');
+    const endEl = li.querySelector('[data-act="end"]');
+
+    if (startEl) startEl.addEventListener("change", async () => {
+      const t = state.tasks.find(x => x.id === id); if (!t) return;
+      t.time = startEl.value || "";
+      if (!t.time) { t.end = ""; toast("Agora é 'quando der'.", "info"); }
+      else {
+        if (!t.end || toMin(t.end) <= toMin(t.time)) t.end = addMin(t.time, DUR[t.cost]);
+        toast("Começa às " + t.time + ", termina às " + t.end + ".", "info");
+      }
+      await persist(); refresh();
+    });
+
+    if (endEl) endEl.addEventListener("change", async () => {
+      const t = state.tasks.find(x => x.id === id); if (!t) return;
+      const v = endEl.value || "";
+      if (v && !t.time) { endEl.value = ""; toast("Defina primeiro o horário de início.", "info"); return; }
+      if (v && toMin(v) <= toMin(t.time)) {
+        endEl.value = t.end || "";
+        toast("O término precisa ser depois do início.", "info"); return;
+      }
+      t.end = v; await persist();
+      toast(v ? "Termina às " + v + " (" + fmtDur(taskDur(t)) + ")." : "Término removido.", "info");
+      refresh();
+    });
+  });
+}
+
+/* ---------- CHECK-IN ---------- */
+function renderCheckin() {
+  const c = checkinOf(today()) || { energy: 3, mood: 3, sleep: 7, overload: 2, note: "" };
+  const exists = !!checkinOf(today());
+  const scale = (name, val, labels) => `<div class="scale">${[1, 2, 3, 4, 5].map(n => `
+      <label class="opt"><input type="radio" name="${name}" value="${n}" ${val === n ? "checked" : ""}>
+      <span>${n}<small>${labels[n - 1]}</small></span></label>`).join("")}</div>`;
+
+  const last7 = lastNCheckins(7);
+
+  document.getElementById("screen-checkin").innerHTML = `
+    <div class="screen__head">
+      <p class="eyebrow">Check-in de ${new Date().toLocaleDateString("pt-BR")}</p>
+      <h1 class="display d-xl" id="tit-checkin">Como você<br><span class="t-lime">está hoje</span></h1>
+      <div class="rule rule--lime" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p class="muted" style="margin-top:16px">Sem resposta certa. Isso não é avaliação — é o que ajusta sua rotina nas próximas horas.</p>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <fieldset>
+          <legend>Energia agora</legend>
+          ${scale("energy", c.energy, ["No chão", "Baixa", "Média", "Boa", "Pico"])}
+        </fieldset>
+        <fieldset>
+          <legend>Humor</legend>
+          ${scale("mood", c.mood, ["Difícil", "Pra baixo", "Neutro", "Bom", "Ótimo"])}
+        </fieldset>
+        <fieldset>
+          <legend>Sobrecarga sensorial</legend>
+          ${scale("overload", c.overload, ["Nenhuma", "Leve", "Média", "Alta", "No limite"])}
+        </fieldset>
+        <div class="field">
+          <label for="ciSleep">Horas de sono na última noite</label>
+          <input class="input" id="ciSleep" type="number" min="0" max="16" step="0.5" value="${c.sleep}" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label for="ciNote">Quer registrar alguma coisa? (opcional)</label>
+          <textarea id="ciNote" rows="3" placeholder="Ex.: reunião longa demais, barulho na rua, dormi mal">${esc(c.note)}</textarea>
+        </div>
+        <button class="btn btn--lime btn--block" id="saveCheckin" type="button">${exists ? "Atualizar check-in" : "Salvar e adaptar minha rotina"}</button>
+      </div>
+
+      <div class="card card--deep">
+        <h2 class="display d-m">Últimos 7 dias</h2>
+        ${last7.some(d => d.value) ? `
+          <div class="chart" role="img" aria-label="Energia registrada nos últimos sete dias">
+            ${last7.map(d => `<div><span class="${d.value >= 4 ? "hi" : ""}" style="height:${d.value ? (d.value / 5) * 100 : 3}%"></span><span class="lbl">${d.label}</span></div>`).join("")}
+          </div>
+          <p class="muted" style="font-size:14px;margin:12px 0 0">Média de energia: <strong>${avgEnergy().toFixed(1)}</strong> de 5.</p>`
+        : `<p class="muted" style="margin:8px 0 0">Seu histórico aparece aqui a partir do primeiro check-in.</p>`}
+      </div>
+    </div>`;
+
+  document.getElementById("saveCheckin").addEventListener("click", saveCheckin);
+}
+
+function lastNCheckins(n) {
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const iso = isoDate(d);
+    const c = state.checkins.find(x => x.date === iso);
+    out.push({ label: d.toLocaleDateString("pt-BR", { weekday: "narrow" }), value: c ? c.energy : 0 });
+  }
+  return out;
+}
+function avgEnergy() {
+  if (!state.checkins.length) return 0;
+  return state.checkins.reduce((s, c) => s + c.energy, 0) / state.checkins.length;
+}
+
+async function saveCheckin() {
+  const val = n => { const el = document.querySelector(`input[name="${n}"]:checked`); return el ? +el.value : 3; };
+  const rec = {
+    date: today(), energy: val("energy"), mood: val("mood"), overload: val("overload"),
+    sleep: Math.max(0, Math.min(16, parseFloat(document.getElementById("ciSleep").value) || 0)),
+    note: document.getElementById("ciNote").value.trim().slice(0, 400)
+  };
+  state.checkins = state.checkins.filter(c => c.date !== rec.date).concat(rec);
+  await persist();
+  const cap = capacity(rec);
+  toast(`Rotina ajustada: ${cap.points} pontos de energia hoje.`);
+  go("hoje");
+}
+
+/* ---------- HISTÓRICO (calendário) ---------- */
+let cal = { y: null, m: null, sel: null };
+const MONTHS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+
+function renderHistorico() {
+  const now = new Date();
+  if (cal.y === null) { cal.y = now.getFullYear(); cal.m = now.getMonth(); }
+  const days = new Date(cal.y, cal.m + 1, 0).getDate();
+  const offset = new Date(cal.y, cal.m, 1).getDay();
+  const todayISO = today();
+
+  let monthDone = 0, monthMin = 0, monthCheck = 0, activeDays = 0;
+  const cells = [];
+  for (let i = 0; i < offset; i++) cells.push('<button class="calday void" type="button" tabindex="-1" aria-hidden="true"></button>');
+  for (let d = 1; d <= days; d++) {
+    const iso = isoDate(new Date(cal.y, cal.m, d));
+    const done = doneOn(iso).length;
+    const mins = focusOn(iso).reduce((sum, f) => sum + f.minutes, 0);
+    const check = !!state.checkins.find(c => c.date === iso);
+    monthDone += done; monthMin += mins;
+    if (check) monthCheck++;
+    if (done) activeDays++;
+    const lvl = done === 0 ? "" : done <= 2 ? "lvl1" : done <= 4 ? "lvl2" : "lvl3";
+    cells.push(`<button class="calday ${lvl} ${iso === todayISO ? "today" : ""}" type="button"
+      data-day="${iso}" aria-pressed="${cal.sel === iso}" ${iso > todayISO ? "disabled" : ""}
+      aria-label="${d} de ${MONTHS[cal.m]}: ${done} ${done === 1 ? "tarefa concluída" : "tarefas concluídas"}${check ? ", com check-in" : ""}">
+      ${d}${check ? '<span class="ci"></span>' : ""}</button>`);
+  }
+
+  const sel = cal.sel;
+  const selDone = sel ? doneOn(sel) : [];
+  const selCheck = sel ? state.checkins.find(c => c.date === sel) : null;
+  const selMin = sel ? focusOn(sel).reduce((sum, f) => sum + f.minutes, 0) : 0;
+  const seq = streak();
+
+  document.getElementById("screen-historico").innerHTML = `
+    <div class="screen__head">
+      <p class="eyebrow">Histórico</p>
+      <h1 class="display d-xl" id="tit-historico">O que você<br><span class="t-lime">já fez</span></h1>
+      <div class="rule rule--lime" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p class="muted" style="margin-top:16px">Registro do que foi concluído — não do que ficou para trás.</p>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <div class="calhead">
+          <button class="calnav" id="calPrev" type="button" aria-label="Mês anterior">‹</button>
+          <h2 class="display d-m" aria-live="polite">${MONTHS[cal.m]} ${cal.y}</h2>
+          <button class="calnav" id="calNext" type="button" aria-label="Próximo mês">›</button>
+        </div>
+        <div class="cal" role="group" aria-label="Calendário de ${MONTHS[cal.m]} de ${cal.y}">
+          ${WEEK.map(d => `<div class="dow">${d.letter}</div>`).join("")}
+          ${cells.join("")}
+        </div>
+        <div class="legend">
+          <span><i style="background:rgba(255,255,255,.05)"></i>nada</span>
+          <span><i style="background:rgba(182,246,90,.2)"></i>1 a 2</span>
+          <span><i style="background:rgba(182,246,90,.5)"></i>3 a 4</span>
+          <span><i style="background:var(--lime-400)"></i>5 ou mais</span>
+          <span><i style="background:var(--blue-300);border-radius:50%;width:8px;height:8px"></i>dia com check-in</span>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><b>${monthDone}</b><span>concluídas no mês</span></div>
+          <div class="kpi"><b>${activeDays}</b><span>dias com atividade</span></div>
+          <div class="kpi"><b>${monthCheck}</b><span>check-ins</span></div>
+          <div class="kpi"><b>${monthMin ? fmtDur(monthMin) : "0"}</b><span>de foco</span></div>
+        </div>
+      </div>
+
+      <div class="card card--deep">
+        <h2 class="display d-m">${sel ? fmtBR(sel) : "Escolha um dia"}</h2>
+        ${!sel ? `<p class="muted" style="margin:10px 0 0;font-size:14.5px">Toque em qualquer dia do calendário para ver o que aconteceu nele.</p>` : `
+          ${selCheck ? `<p class="muted" style="margin:10px 0 0;font-size:14.5px">
+              Energia ${selCheck.energy}/5 · humor ${selCheck.mood}/5 · sobrecarga ${selCheck.overload}/5 · ${selCheck.sleep}h de sono
+              ${selCheck.note ? `<br><em>"${esc(selCheck.note)}"</em>` : ""}
+            </p>` : `<p class="muted" style="margin:10px 0 0;font-size:14.5px">Sem check-in nesse dia.</p>`}
+          ${selMin ? `<p class="muted" style="margin:8px 0 0;font-size:14.5px">${fmtDur(selMin)} em sessões de foco.</p>` : ""}
+          ${selDone.length
+            ? `<ul class="daylog">${selDone.map(h => `<li><b>${h.at || "—"}</b><span>${esc(h.title)} <span class="tag">${COST_LABEL[h.cost] || ""}</span></span></li>`).join("")}</ul>`
+            : `<p class="muted" style="margin:14px 0 0;font-size:14.5px">Nenhuma tarefa concluída. Dias assim também fazem parte.</p>`}
+        `}
+      </div>
+
+      <div class="card">
+        <div class="between"><h2 class="display d-m">Sequência atual</h2><span class="chip chip--lime">${seq} ${seq === 1 ? "dia" : "dias"}</span></div>
+        <p class="muted" style="margin:10px 0 0;font-size:14.5px">
+          Dias seguidos com pelo menos uma tarefa concluída. Perder um dia zera o contador, não o seu valor —
+          ele recomeça na primeira tarefa que você marcar.
+        </p>
+      </div>
+    </div>`;
+
+  document.getElementById("calPrev").addEventListener("click", () => {
+    cal.m--; if (cal.m < 0) { cal.m = 11; cal.y--; }
+    cal.sel = null; renderHistorico();
+  });
+  document.getElementById("calNext").addEventListener("click", () => {
+    cal.m++; if (cal.m > 11) { cal.m = 0; cal.y++; }
+    cal.sel = null; renderHistorico();
+  });
+  document.querySelectorAll("[data-day]").forEach(b => b.addEventListener("click", () => {
+    cal.sel = cal.sel === b.dataset.day ? null : b.dataset.day;
+    renderHistorico();
+  }));
+}
+
+/* ---------- PLANOS ---------- */
+function renderPlanos() {
+  const premium = state.user.plan === "premium";
+  const sponsored = !!state.user.sponsoredBy;
+  document.getElementById("screen-planos").innerHTML = `
+    <div class="screen__head">
+      <p class="eyebrow">Planos</p>
+      <h1 class="display d-xl" id="tit-planos">Escolha o que<br><span class="t-lime">cabe em você</span></h1>
+      <div class="rule rule--lime" aria-hidden="true"><i></i><i></i><i></i></div>
+    </div>
+
+    <div class="plans">
+      <article class="plan">
+        <h2 class="plan__name">Plano Básico</h2>
+        <p class="plan__price">Gratuito</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6"/></svg> Gestão de rotina essencial</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6"/></svg> Inputs manuais de energia</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6"/></svg> Widgets de foco</li>
+        </ul>
+        <button class="btn btn--ghost" type="button" ${premium && !sponsored ? 'id="downgrade"' : "disabled"}>${premium ? "Voltar para o Básico" : "Seu plano atual"}</button>
+      </article>
+
+      <article class="plan plan--premium">
+        <span class="badge">${premium ? "Ativo" : "Assinatura"}</span>
+        <h2 class="plan__name">Plano Premium</h2>
+        <p class="plan__price">R$ 2 – 20 <span style="font-size:14px;color:rgba(255,255,255,.75)">/ mês</span></p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 3 6.6 7 .8-5.2 4.8 1.4 7L12 17.8 5.8 21.2l1.4-7L2 9.4l7-.8z"/></svg> IA preditiva de energia</li>
+          <li><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 3 6.6 7 .8-5.2 4.8 1.4 7L12 17.8 5.8 21.2l1.4-7L2 9.4l7-.8z"/></svg> Integração com wearables</li>
+          <li><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 3 6.6 7 .8-5.2 4.8 1.4 7L12 17.8 5.8 21.2l1.4-7L2 9.4l7-.8z"/></svg> Relatórios para terapeutas</li>
+        </ul>
+        ${sponsored
+          ? `<p class="muted" style="margin:0 0 12px;font-size:14px">Apadrinhado por <strong>${esc(state.user.sponsoredBy.name || state.user.sponsoredBy.email)}</strong> — sem cobrança para você.</p>
+             <p class="muted" style="margin:0 0 12px;font-size:13px">Gerencie o apadrinhamento no seu Perfil.</p>`
+          : premium
+          ? `<p class="muted" style="margin:0 0 12px;font-size:14px">Assinatura ativa: ${brl(state.user.tier || 9.9)}/mês.</p>
+             <button class="btn btn--ghost" id="manage" type="button">Gerenciar assinatura</button>`
+          : `<button class="btn btn--lime" id="startCheckout" type="button">Assinar o Premium</button>`}
+      </article>
+    </div>
+
+    <p class="muted" style="text-align:center;margin-top:26px;font-size:14.5px">
+      Parcerias estratégicas com clínicas de neuropsicologia e planos de saúde.
+    </p>
+
+    ${premium ? renderPremiumTools() : ""}`;
+
+  const s = document.getElementById("startCheckout");
+  if (s) s.addEventListener("click", () => openCheckout());
+  const d = document.getElementById("downgrade");
+  if (d) d.addEventListener("click", async () => {
+    state.user.plan = "basico"; state.user.tier = null; await persist();
+    toast("Você voltou para o Plano Básico.", "info"); renderPlanos(); paintChrome();
+  });
+  const m = document.getElementById("manage");
+  if (m) m.addEventListener("click", () => openCheckout(true));
+  bindPremiumTools();
+}
+
+function renderPremiumTools() {
+  const connected = !!state.wearable;
+  return `<div class="stack" style="margin-top:26px">
+    <div class="card">
+      <div class="between"><h2 class="display d-m">Integração com wearables</h2><span class="chip chip--lime">Premium</span></div>
+      <p class="muted" style="margin:10px 0 16px;font-size:14.5px">
+        ${connected ? `Conectado a <strong>${esc(state.wearable)}</strong>. Sono e batimentos entram sozinhos no check-in.`
+          : "Conecte um dispositivo para preencher energia e sono automaticamente."}
+      </p>
+      ${connected ? `<button class="btn btn--ghost btn--sm" id="wearOff" type="button">Desconectar</button>`
+        : `<div class="row">
+            <button class="btn btn--blue btn--sm" data-wear="Apple Watch" type="button">Apple Watch</button>
+            <button class="btn btn--blue btn--sm" data-wear="Galaxy Watch" type="button">Galaxy Watch</button>
+            <button class="btn btn--blue btn--sm" data-wear="Mi Band" type="button">Mi Band</button>
+          </div>`}
+    </div>
+    <div class="card">
+      <div class="between"><h2 class="display d-m">Relatório para terapeuta</h2><span class="chip chip--lime">Premium</span></div>
+      <p class="muted" style="margin:10px 0 16px;font-size:14.5px">Resumo dos últimos 30 dias: energia, humor, sobrecarga, sono e adesão à rotina.</p>
+      <div class="row">
+        <button class="btn btn--lime btn--sm" id="repDownload" type="button">Baixar relatório</button>
+        <button class="btn btn--ghost btn--sm" id="repPrint" type="button">Imprimir</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function bindPremiumTools() {
+  document.querySelectorAll("[data-wear]").forEach(b => b.addEventListener("click", async () => {
+    state.wearable = b.dataset.wear; await persist();
+    toast(b.dataset.wear + " conectado."); renderPlanos();
+  }));
+  const off = document.getElementById("wearOff");
+  if (off) off.addEventListener("click", async () => { state.wearable = null; await persist(); toast("Dispositivo desconectado.", "info"); renderPlanos(); });
+  const dl = document.getElementById("repDownload");
+  if (dl) dl.addEventListener("click", () => downloadReport());
+  const pr = document.getElementById("repPrint");
+  if (pr) pr.addEventListener("click", () => { try { window.print(); } catch (e) { toast("Impressão indisponível aqui.", "info"); } });
+}
+
+function reportText() {
+  const l = [];
+  l.push("NEUROSYNC — RELATÓRIO DE ACOMPANHAMENTO");
+  l.push("Pessoa: " + state.user.name + " (" + state.user.email + ")");
+  l.push("Perfil: " + state.user.profile + " · Gerado em " + new Date().toLocaleString("pt-BR"));
+  l.push("");
+  l.push("MÉDIAS");
+  l.push("Energia média: " + avgEnergy().toFixed(1) + "/5 em " + state.checkins.length + " check-ins");
+  l.push("Tarefas concluídas (total registrado): " + state.history.length);
+  l.push("Sequência atual: " + streak() + " dias seguidos");
+  l.push("Sessões de foco: " + state.focus.length);
+  l.push("");
+  l.push("CHECK-INS");
+  state.checkins.slice(-30).forEach(c => {
+    l.push(`${c.date} · energia ${c.energy}/5 · humor ${c.mood}/5 · sobrecarga ${c.overload}/5 · sono ${c.sleep}h${c.note ? " · " + c.note : ""}`);
+  });
+  return l.join("\n");
+}
+function downloadReport() {
+  try {
+    const blob = new Blob([reportText()], { type: "text/plain;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "neurosync-relatorio.txt";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    toast("Relatório baixado.");
+  } catch (e) { toast("Não consegui baixar aqui. Use Imprimir.", "info"); }
+}
+
+/* ================================================================
+   7. CHECKOUT
+   ================================================================ */
+const TIERS = [
+  { id: "apoio", price: 2, name: "Apoiado", desc: "Para quem está no aperto. Mesmas funções." },
+  { id: "individual", price: 9.9, name: "Individual", desc: "O valor que sustenta o projeto." },
+  { id: "padrinho", price: 19.9, name: "Padrinho", desc: "Banca o seu plano e o de mais alguém." }
+];
+let ck = { step: 0, tier: TIERS[1], method: "cartao", card: {} };
+let sheetFocus = null;   // elemento que abriu a folha (checkout ou edição)
+
+function openCheckout(manage) {
+  ck = { step: 0, tier: TIERS.find(t => t.price === state.user.tier) || TIERS[1], method: "cartao", card: {} };
+  sheetFocus = document.activeElement;
+  if (manage) ck.step = 0;
+  renderSheet();
+}
+function closeSheet() {
+  document.removeEventListener("keydown", sheetKeys);
+  document.getElementById("sheetRoot").innerHTML = "";
+  document.body.style.overflow = "";
+  if (sheetFocus && sheetFocus.focus) sheetFocus.focus();
+}
+
+function renderSheet() {
+  const root = document.getElementById("sheetRoot");
+  document.body.style.overflow = "hidden";
+  root.innerHTML = `
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ckTitle">
+      <button class="sheet__veil" type="button" aria-label="Fechar checkout"></button>
+      <div class="sheet__panel">
+        <button class="sheet__close" type="button" aria-label="Fechar">✕</button>
+        <div class="steps" aria-hidden="true">${[0, 1, 2, 3].map(i => `<i class="${i <= ck.step ? "on" : ""}"></i>`).join("")}</div>
+        <div id="ckBody">${[ckStep1, ckStep2, ckStep3, ckStep4][ck.step]()}</div>
+      </div>
+    </div>`;
+
+  root.querySelector(".sheet__veil").addEventListener("click", closeSheet);
+  root.querySelector(".sheet__close").addEventListener("click", closeSheet);
+  document.removeEventListener("keydown", sheetKeys);
+  document.addEventListener("keydown", sheetKeys);
+  bindSheet();
+  const h = root.querySelector("h2"); if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
+}
+function sheetKeys(e) {
+  const panel = document.querySelector(".sheet__panel");
+  if (!panel) { document.removeEventListener("keydown", sheetKeys); return; }
+  if (e.key === "Escape") { closeSheet(); return; }
+  if (e.key !== "Tab") return;
+  const f = [...panel.querySelectorAll('button,input,select,textarea,a[href]')].filter(el => !el.disabled && el.offsetParent !== null);
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+
+/* passo 1 — valor */
+function ckStep1() {
+  return `<h2 class="display d-l" id="ckTitle">Quanto vale<br><span class="t-lime">para você</span></h2>
+    <p class="muted" style="margin:14px 0 20px;font-size:15px">Mesmas funções nos três valores. Escolha sem culpa — dá para mudar todo mês.</p>
+    <div class="tier">
+      ${TIERS.map(t => `<label class="opt"><input type="radio" name="tier" value="${t.id}" ${ck.tier.id === t.id ? "checked" : ""}>
+        <span>${t.name} — ${brl(t.price)}/mês<small>${t.desc}</small></span></label>`).join("")}
+    </div>
+    <button class="btn btn--lime btn--block" id="ckNext" type="button" style="margin-top:20px">Continuar</button>`;
+}
+
+/* passo 2 — pagamento */
+function ckStep2() {
+  return `<h2 class="display d-l" id="ckTitle">Pagamento</h2>
+    <p class="muted" style="margin:12px 0 18px;font-size:15px">${ck.tier.name} · ${brl(ck.tier.price)} por mês, cancela quando quiser.</p>
+    <div class="opts opts--2" style="margin-bottom:18px">
+      <label class="opt"><input type="radio" name="method" value="cartao" ${ck.method === "cartao" ? "checked" : ""}><span>Cartão</span></label>
+      <label class="opt"><input type="radio" name="method" value="pix" ${ck.method === "pix" ? "checked" : ""}><span>Pix</span></label>
+    </div>
+    <div id="payArea">${ck.method === "cartao" ? cardForm() : pixArea()}</div>
+    <p class="demo-note">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></svg>
+      Modo demonstração: nenhum pagamento real é processado. Use o cartão de teste 4242 4242 4242 4242.
+    </p>
+    <button class="btn btn--lime btn--block" id="ckNext" type="button" style="margin-top:16px">Revisar assinatura</button>
+    <button class="btn btn--ghost btn--block" id="ckBack" type="button" style="margin-top:10px">Voltar</button>`;
+}
+function cardForm() {
+  const c = ck.card;
+  return `<div class="field">
+      <label for="cardName">Nome impresso no cartão</label>
+      <input class="input" id="cardName" type="text" autocomplete="cc-name" value="${esc(c.name || state.user.name)}">
+      <p class="err" id="errCardName"></p>
+    </div>
+    <div class="field">
+      <label for="cardNum">Número do cartão</label>
+      <input class="input" id="cardNum" type="text" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" maxlength="19" value="${esc(c.num || "")}">
+      <p class="err" id="errCardNum"></p>
+    </div>
+    <div class="row" style="gap:14px">
+      <div class="field" style="flex:1;min-width:120px">
+        <label for="cardExp">Validade</label>
+        <input class="input" id="cardExp" type="text" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/AA" maxlength="5" value="${esc(c.exp || "")}">
+        <p class="err" id="errCardExp"></p>
+      </div>
+      <div class="field" style="flex:1;min-width:120px">
+        <label for="cardCvv">CVV</label>
+        <input class="input" id="cardCvv" type="text" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4" value="${esc(c.cvv || "")}">
+        <p class="err" id="errCardCvv"></p>
+      </div>
+    </div>
+    <div class="field">
+      <label for="cardCpf">CPF do titular</label>
+      <input class="input" id="cardCpf" type="text" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" value="${esc(c.cpf || "")}">
+      <p class="err" id="errCardCpf"></p>
+    </div>`;
+}
+function pixArea() {
+  const code = "00020126NEUROSYNC" + Math.random().toString(36).slice(2, 12).toUpperCase() + "5204000053039865802BR";
+  ck.pixCode = code;
+  return `<div class="pix">
+      ${qrSVG(code)}
+      <p style="margin:0;font-weight:700">Pix copia e cola</p>
+      <code>${esc(code)}</code>
+      <button class="btn btn--blue btn--sm" id="pixCopy" type="button">Copiar código</button>
+    </div>`;
+}
+function qrSVG(seed) {
+  let h = 0; for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  const n = 21, cells = [];
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    h = (h * 1103515245 + 12345) >>> 0;
+    const corner = (x < 7 && y < 7) || (x > 13 && y < 7) || (x < 7 && y > 13);
+    if (corner) continue;
+    if ((h >> 16) % 2) cells.push(`<rect x="${x}" y="${y}" width="1" height="1"/>`);
+  }
+  const eye = (x, y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="none" stroke="#04113C" stroke-width="1"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3"/>`;
+  return `<svg viewBox="0 0 21 21" width="150" height="150" fill="#04113C" role="img" aria-label="QR Code Pix de demonstração">
+    <rect width="21" height="21" fill="#fff"/>${cells.join("")}${eye(0, 0)}${eye(14, 0)}${eye(0, 14)}</svg>`;
+}
+
+/* passo 3 — revisão */
+function ckStep3() {
+  const c = ck.card;
+  return `<h2 class="display d-l" id="ckTitle">Confira antes<br>de confirmar</h2>
+    <div class="summary">
+      <dl>
+        <dt>Plano</dt><dd>Premium · ${ck.tier.name}</dd>
+        <dt>Cobrança</dt><dd>Mensal</dd>
+        <dt>Pagamento</dt><dd>${ck.method === "pix" ? "Pix" : "Cartão •••• " + (c.num || "").replace(/\s/g, "").slice(-4)}</dd>
+        <dt>Conta</dt><dd>${esc(state.user.email)}</dd>
+      </dl>
+      <div class="between total"><span>Total hoje</span><span class="t-lime">${brl(ck.tier.price)}</span></div>
+    </div>
+    <p class="muted" style="font-size:14px">Renova todo mês na mesma data. Cancelar leva dois toques no Perfil, sem ligação e sem retenção.</p>
+    <button class="btn btn--lime btn--block" id="ckPay" type="button" style="margin-top:18px">Confirmar e ativar Premium</button>
+    <button class="btn btn--ghost btn--block" id="ckBack" type="button" style="margin-top:10px">Voltar</button>`;
+}
+
+/* passo 4 — sucesso */
+function ckStep4() {
+  return `<div class="success">
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6"/></svg></div>
+      <h2 class="display d-l" id="ckTitle">Premium ativo</h2>
+      <p class="muted" style="margin:14px 0 0">
+        A IA preditiva já está liberada na tela Hoje, e você pode conectar um wearable
+        e gerar relatórios em Planos. Recibo enviado para ${esc(state.user.email)}.
+      </p>
+      <button class="btn btn--lime btn--block" id="ckDone" type="button" style="margin-top:24px">Ver minha rotina</button>
+    </div>`;
+}
+
+function bindSheet() {
+  const root = document.getElementById("sheetRoot");
+  const next = root.querySelector("#ckNext");
+  const back = root.querySelector("#ckBack");
+  const pay = root.querySelector("#ckPay");
+  const done = root.querySelector("#ckDone");
+
+  root.querySelectorAll('input[name="tier"]').forEach(i => i.addEventListener("change", () => {
+    ck.tier = TIERS.find(t => t.id === i.value);
+  }));
+  root.querySelectorAll('input[name="method"]').forEach(i => i.addEventListener("change", () => {
+    ck.method = i.value;
+    document.getElementById("payArea").innerHTML = ck.method === "cartao" ? cardForm() : pixArea();
+    bindPayArea();
+  }));
+  bindPayArea();
+
+  if (next) next.addEventListener("click", () => {
+    if (ck.step === 1 && !validatePayment()) return;
+    ck.step++; renderSheet();
+  });
+  if (back) back.addEventListener("click", () => { ck.step--; renderSheet(); });
+  if (pay) pay.addEventListener("click", async () => {
+    pay.disabled = true; pay.textContent = "Processando…";
+    setTimeout(async () => {
+      state.user.plan = "premium"; state.user.tier = ck.tier.price;
+      await persist();
+      ck.step = 3; renderSheet(); paintChrome();
+    }, 900);
+  });
+  if (done) done.addEventListener("click", () => { closeSheet(); toast("Premium ativado. Bom uso."); go("hoje"); renderPlanos(); });
+}
+
+function bindPayArea() {
+  const num = document.getElementById("cardNum");
+  if (num) num.addEventListener("input", () => {
+    num.value = num.value.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+  });
+  const exp = document.getElementById("cardExp");
+  if (exp) exp.addEventListener("input", () => {
+    let v = exp.value.replace(/\D/g, "").slice(0, 4);
+    if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
+    exp.value = v;
+  });
+  const cvv = document.getElementById("cardCvv");
+  if (cvv) cvv.addEventListener("input", () => { cvv.value = cvv.value.replace(/\D/g, "").slice(0, 4); });
+  const cpf = document.getElementById("cardCpf");
+  if (cpf) cpf.addEventListener("input", () => {
+    let v = cpf.value.replace(/\D/g, "").slice(0, 11);
+    v = v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    cpf.value = v;
+  });
+  const copy = document.getElementById("pixCopy");
+  if (copy) copy.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(ck.pixCode); toast("Código Pix copiado."); }
+    catch (e) { toast("Selecione o código para copiar.", "info"); }
+  });
+}
+
+function luhn(v) {
+  const s = v.replace(/\D/g, ""); if (s.length < 13) return false;
+  let sum = 0, alt = false;
+  for (let i = s.length - 1; i >= 0; i--) {
+    let d = +s[i];
+    if (alt) { d *= 2; if (d > 9) d -= 9; }
+    sum += d; alt = !alt;
+  }
+  return sum % 10 === 0;
+}
+function cpfValid(v) {
+  const s = v.replace(/\D/g, "");
+  if (s.length !== 11 || /^(\d)\1{10}$/.test(s)) return false;
+  for (let t = 9; t < 11; t++) {
+    let sum = 0;
+    for (let i = 0; i < t; i++) sum += +s[i] * (t + 1 - i);
+    let d = (sum * 10) % 11; if (d === 10) d = 0;
+    if (d !== +s[t]) return false;
+  }
+  return true;
+}
+function setErr(id, msg, input) {
+  const e = document.getElementById(id); if (e) e.textContent = msg || "";
+  if (input) msg ? input.setAttribute("aria-invalid", "true") : input.removeAttribute("aria-invalid");
+  return !msg;
+}
+function validatePayment() {
+  if (ck.method === "pix") return true;
+  const name = document.getElementById("cardName"), num = document.getElementById("cardNum"),
+        exp = document.getElementById("cardExp"), cvv = document.getElementById("cardCvv"),
+        cpf = document.getElementById("cardCpf");
+  let ok = true, firstBad = null;
+  const check = (cond, id, msg, el) => { const good = setErr(id, cond ? "" : msg, el); if (!good) { ok = false; if (!firstBad) firstBad = el; } };
+
+  check(name.value.trim().length >= 3, "errCardName", "Escreva o nome como está no cartão.", name);
+  check(luhn(num.value), "errCardNum", "Número inválido. Para testar, use 4242 4242 4242 4242.", num);
+
+  const m = /^(\d{2})\/(\d{2})$/.exec(exp.value);
+  let expOk = false;
+  if (m) {
+    const mm = +m[1], yy = 2000 + +m[2], now = new Date();
+    expOk = mm >= 1 && mm <= 12 && new Date(yy, mm, 0) >= new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+  check(expOk, "errCardExp", "Use MM/AA, com data futura.", exp);
+  check(/^\d{3,4}$/.test(cvv.value), "errCardCvv", "3 ou 4 dígitos.", cvv);
+  check(cpfValid(cpf.value), "errCardCpf", "CPF inválido.", cpf);
+
+  ck.card = { name: name.value.trim(), num: num.value, exp: exp.value, cvv: cvv.value, cpf: cpf.value };
+  if (!ok && firstBad) firstBad.focus();
+  return ok;
+}
+
+/* ---------- PERFIL ---------- */
+/** Preço do tier "Padrinho" — só quem assina nesse valor pode apadrinhar um amigo. */
+function padrinhoTierPrice() {
+  const t = TIERS.find(x => x.id === "padrinho");
+  return t ? t.price : null;
+}
+
+/** Cartões de apadrinhamento do Perfil: convite recebido, apadrinhado por alguém, e/ou gerenciar quem eu apadrinho. */
+function sponsorCardsHTML(u) {
+  let html = "";
+
+  if (u.pendingInvite) {
+    html += `<div class="card" style="border-left:6px solid var(--lime-400)">
+      <h2 class="display d-m">Convite de apadrinhamento</h2>
+      <p class="muted" style="margin:10px 0 16px;font-size:14.5px">
+        <strong>${esc(u.pendingInvite.fromName || u.pendingInvite.fromEmail)}</strong> quer bancar seu Premium, sem custo pra você.
+      </p>
+      <div class="row">
+        <button class="btn btn--lime btn--sm" id="inviteAccept" type="button">Aceitar</button>
+        <button class="btn btn--ghost btn--sm" id="inviteDecline" type="button">Recusar</button>
+      </div>
+    </div>`;
+  }
+
+  if (u.sponsoredBy) {
+    html += `<div class="card card--deep">
+      <h2 class="display d-m">Apadrinhamento</h2>
+      <p class="muted" style="margin:10px 0 16px;font-size:14.5px">
+        Você é Premium porque <strong>${esc(u.sponsoredBy.name || u.sponsoredBy.email)}</strong> banca sua assinatura.
+      </p>
+      <button class="btn btn--ghost btn--sm" id="sponsorLeave" type="button">Sair do apadrinhamento</button>
+    </div>`;
+  }
+
+  // Mostra o cartão se dá pra convidar agora, ou se já existe um apadrinhamento pra gerenciar
+  // (ex.: a pessoa mudou de tier depois de convidar alguém — ainda precisa poder cancelar/remover).
+  const isPadrinhoNow = u.plan === "premium" && !u.sponsoredBy && u.tier === padrinhoTierPrice();
+  if (isPadrinhoNow || u.sponsoring) {
+    html += `<div class="card">
+      <div class="between"><h2 class="display d-m">Padrinho</h2><span class="chip chip--lime">Premium</span></div>
+      <p class="muted" style="margin:10px 0 16px;font-size:14.5px">Seu plano banca uma segunda pessoa. Gerencie quem recebe o acesso.</p>
+      ${!u.sponsoring ? `
+        <div class="field">
+          <label for="sponsorCode">ID do seu amigo</label>
+          <input class="input" id="sponsorCode" type="text" maxlength="6" placeholder="Ex.: AB12CD" style="text-transform:uppercase">
+          <p class="err" id="sponsorErr"></p>
+        </div>
+        <button class="btn btn--lime btn--sm" id="sponsorInvite" type="button">Enviar convite</button>`
+      : u.sponsoring.status === "pending" ? `
+        <p class="muted" style="margin:0 0 14px;font-size:14.5px">Convite enviado para <strong>${esc(u.sponsoring.name || u.sponsoring.email)}</strong>, aguardando resposta.</p>
+        <button class="btn btn--ghost btn--sm" id="sponsorCancel" type="button">Cancelar convite</button>`
+      : `
+        <p class="muted" style="margin:0 0 14px;font-size:14.5px">Você apadrinha <strong>${esc(u.sponsoring.name || u.sponsoring.email)}</strong>.</p>
+        <button class="btn btn--ghost btn--sm" id="sponsorRevoke" type="button">Remover apadrinhamento</button>`}
+    </div>`;
+  }
+
+  return html;
+}
+
+function bindSponsorCards() {
+  const err = (msg) => { const e = document.getElementById("sponsorErr"); if (e) e.textContent = msg || ""; };
+  const after = async (res) => {
+    let data = null;
+    try { data = await res.json(); } catch (e) {}
+    if (!res.ok) { err(data && data.error); toast(data && data.error ? data.error : "Não foi possível concluir.", "info"); return; }
+    await refreshAccountMeta(); paintChrome(); renderPerfil();
+  };
+
+  const invite = document.getElementById("sponsorInvite");
+  if (invite) invite.addEventListener("click", async () => {
+    const code = document.getElementById("sponsorCode").value.trim().toUpperCase();
+    if (!code) { err("Peça o ID pro seu amigo, em Perfil."); return; }
+    invite.disabled = true;
+    try {
+      await after(await fetch("/api/sponsor/invite", {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      }));
+    } catch (e) { err("Não foi possível conectar ao servidor."); }
+    invite.disabled = false;
+  });
+
+  const cancel = document.getElementById("sponsorCancel");
+  if (cancel) cancel.addEventListener("click", async () => {
+    try { await after(await fetch("/api/sponsor/cancel", { method: "POST", credentials: "include" })); } catch (e) {}
+  });
+
+  const revoke = document.getElementById("sponsorRevoke");
+  if (revoke) revoke.addEventListener("click", async () => {
+    try { await after(await fetch("/api/sponsor/revoke", { method: "POST", credentials: "include" })); } catch (e) {}
+  });
+
+  const leave = document.getElementById("sponsorLeave");
+  if (leave) leave.addEventListener("click", async () => {
+    try { await after(await fetch("/api/sponsor/leave", { method: "POST", credentials: "include" })); } catch (e) {}
+  });
+
+  const accept = document.getElementById("inviteAccept");
+  if (accept) accept.addEventListener("click", async () => {
+    try {
+      await after(await fetch("/api/sponsor/respond", {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accept: true })
+      }));
+      toast("Convite aceito. Bem-vindo ao Premium.");
+    } catch (e) {}
+  });
+  const decline = document.getElementById("inviteDecline");
+  if (decline) decline.addEventListener("click", async () => {
+    try {
+      await after(await fetch("/api/sponsor/respond", {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accept: false })
+      }));
+    } catch (e) {}
+  });
+}
+
+function renderPerfil() {
+  const u = state.user;
+  const initials = (u.name || "NS").split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase();
+  document.getElementById("screen-perfil").innerHTML = `
+    <div class="screen__head">
+      <p class="eyebrow">Perfil</p>
+      <h1 class="display d-xl" id="tit-perfil">${esc(u.name || "Você")}</h1>
+      <div class="rule" aria-hidden="true"><i></i><i></i><i></i></div>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <div class="row" style="gap:16px;align-items:center">
+          <span class="avatar" aria-hidden="true" style="cursor:default">${esc(initials)}</span>
+          <div>
+            <p style="margin:0;font-weight:700">${esc(u.email)}</p>
+            <p class="muted" style="margin:2px 0 0;font-size:14px">Na NeuroSync desde ${fmtBR(u.since)} · Seu ID: <strong>${esc(u.code || "—")}</strong></p>
+          </div>
+          <span class="chip ${u.plan === "premium" ? "chip--lime" : "chip--soft"}" style="margin-left:auto">${u.plan === "premium" ? "Premium" : "Básico"}</span>
+        </div>
+      </div>
+
+      ${sponsorCardsHTML(u)}
+
+      <div class="card">
+        <h2 class="display d-m">Preferências</h2>
+        <div style="margin-top:16px">
+          <div class="field">
+            <label for="pfName">Nome</label>
+            <input class="input" id="pfName" type="text" value="${esc(u.name)}">
+          </div>
+          <div class="field">
+            <label for="pfProfile">Perfil</label>
+            <select id="pfProfile">
+              <option value="autismo" ${u.profile === "autismo" ? "selected" : ""}>Autismo</option>
+              <option value="tdah" ${u.profile === "tdah" ? "selected" : ""}>TDAH</option>
+              <option value="ambos" ${u.profile === "ambos" ? "selected" : ""}>Autismo e TDAH</option>
+              <option value="investigando" ${u.profile === "investigando" ? "selected" : ""}>Ainda investigando</option>
+            </select>
+          </div>
+          <div class="row" style="gap:14px">
+            <div class="field" style="flex:1;min-width:140px"><label for="pfWake">Acordo às</label><input class="input" id="pfWake" type="time" value="${u.wake}"></div>
+            <div class="field" style="flex:1;min-width:140px"><label for="pfSleep">Durmo às</label><input class="input" id="pfSleep" type="time" value="${u.sleep}"></div>
+          </div>
+          <button class="btn btn--lime" id="pfSave" type="button">Salvar alterações</button>
+        </div>
+      </div>
+
+      <div class="card card--deep">
+        <h2 class="display d-m">Sua conta</h2>
+        <p class="muted" style="margin:10px 0 16px;font-size:14.5px">
+          Seus dados ficam guardados com segurança no servidor, associados a este e-mail.
+        </p>
+        <div class="row">
+          <button class="btn btn--ghost btn--sm" id="exportData" type="button">Exportar em JSON</button>
+          <button class="btn btn--ghost btn--sm" id="logoutBtn" type="button">Sair da conta</button>
+          <button class="btn btn--danger btn--sm" id="resetData" type="button">Apagar minha conta</button>
+        </div>
+      </div>
+
+      <p class="muted" style="text-align:center;font-size:13.5px">
+        NeuroSync · <a href="index.html" style="color:var(--lime-400)">voltar ao site</a>
+      </p>
+    </div>`;
+
+  bindSponsorCards();
+
+  document.getElementById("pfSave").addEventListener("click", async () => {
+    state.user.name = document.getElementById("pfName").value.trim() || state.user.name;
+    state.user.profile = document.getElementById("pfProfile").value;
+    state.user.wake = document.getElementById("pfWake").value;
+    state.user.sleep = document.getElementById("pfSleep").value;
+    await persist(); paintChrome(); toast("Preferências salvas."); renderPerfil();
+  });
+  document.getElementById("exportData").addEventListener("click", () => {
+    try {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = "neurosync-dados.json";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      toast("Dados exportados.");
+    } catch (e) { toast("Não foi possível exportar aqui.", "info"); }
+  });
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    try { await fetch("/api/logout", { method: "POST", credentials: "include" }); } catch (e) {}
+    showAuth();
+  });
+
+  const del = document.getElementById("resetData");
+  let armed = false;
+  del.addEventListener("click", async () => {
+    if (!armed) {
+      armed = true;
+      del.textContent = "Tocar de novo para confirmar";
+      setTimeout(() => { armed = false; del.textContent = "Apagar minha conta"; }, 5000);
+      return;
+    }
+    try { await fetch("/api/account", { method: "DELETE", credentials: "include" }); } catch (e) {}
+    showAuth();
+  });
+}
+
+/* ================================================================
+   8. ROTEADOR
+   ================================================================ */
+const RENDER = { hoje: renderHoje, rotina: renderRotina, checkin: renderCheckin, historico: renderHistorico, planos: renderPlanos, perfil: renderPerfil };
+
+function go(name) {
+  if (!RENDER[name]) name = "hoje";
+  route = name;
+  RENDER[name]();
+  Object.keys(RENDER).forEach(k => { document.getElementById("screen-" + k).hidden = k !== name; });
+  document.querySelectorAll(".tabbar button").forEach(b => {
+    b.dataset.go === name ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current");
+  });
+  if (location.hash !== "#/" + name) history.replaceState(null, "", "#/" + name);
+  const h1 = document.querySelector("#screen-" + name + " h1");
+  if (h1) { h1.setAttribute("tabindex", "-1"); h1.focus({ preventScroll: true }); }
+  window.scrollTo({ top: 0, behavior: "auto" });
+}
+
+function paintChrome() {
+  const u = state.user;
+  const chip = document.getElementById("planChip");
+  chip.textContent = u.plan === "premium" ? "Premium" : "Básico";
+  chip.className = "chip " + (u.plan === "premium" ? "chip--lime" : "chip--soft");
+  document.getElementById("avatarBtn").textContent = (u.name || "NS").split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase();
+}
+
+document.addEventListener("click", e => {
+  const btn = e.target.closest("[data-go]");
+  if (btn) { e.preventDefault(); go(btn.dataset.go); }
+});
+document.getElementById("avatarBtn").addEventListener("click", () => go("perfil"));
+window.addEventListener("hashchange", () => {
+  const name = location.hash.replace("#/", "");
+  if (state && state.onboarded && RENDER[name] && name !== route) go(name);
+});
+
+/* ================================================================
+   9. BOOT
+   ================================================================ */
+(async function boot() {
+  try {
+    const res = await fetch("/api/me", { credentials: "include" });
+    if (res.ok) { await afterAuth(await res.json()); return; }
+  } catch (e) {}
+  showAuth();
+})();
+</script>
+</body>
+</html>
